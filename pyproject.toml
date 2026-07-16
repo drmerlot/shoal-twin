@@ -1,0 +1,39 @@
+[project]
+name = "shoal-twin"
+version = "0.1.0"
+description = "Shoal Creek Flood Forecasting System — SWMM Physics + ML Surrogate"
+requires-python = ">=3.11"
+dependencies = [
+    # USGS gauge data
+    "dataretrieval>=1.0.0",
+    # SWMM physics engine
+    "pyswmm>=1.5.0",
+    "swmmio>=0.7.0",
+    # GIS / raster
+    "geopandas>=1.0.0",
+    "shapely>=2.0.0",
+    "rasterio>=1.4.0",
+    "fiona>=1.10.0",
+    "pyproj>=3.6.0",
+    # Data / ML
+    "pandas>=2.0",
+    "numpy>=1.26",
+    "scipy>=1.13",
+    "scikit-learn>=1.5",
+    "xgboost>=2.0",
+    # Utilities
+    "matplotlib>=3.8",
+    "tqdm>=4.66",
+    "requests>=2.31",
+    # App
+    "streamlit>=1.35",
+    "plotly>=5.20",
+    # Notebook-friendly (optional but useful for exploration)
+    "ipykernel>=6.29",
+]
+
+[dependency-groups]
+dev = ["pytest>=8.0", "pytest-cov>=5.0"]
+
+[tool.uv]
+dev-dependencies = ["pytest>=8.0", "pytest-cov>=5.0"]

@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.egg-info/
+dist/
+build/
+
+# uv / virtual envs
+.venv/
+venv/
+env/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# SWMM simulation outputs (generated, not source)
+*.rpt
+*.out
+model/*.out
+model/*.rpt
+
+# Large generated datasets (tracked by meta only)
+data/raw/usgs/*.parquet
+data/raw/gis/*.shp
+data/raw/gis/*.dbf
+data/raw/gis/*.shx
+data/raw/gis/*.prj
+data/raw/gis/*.cpg
+output/hydrographs.npz
+output/training_data.csv
+output/model/surrogate.joblib
+output/model/benchmark/*.joblib
+
+# Keep registry/comparison CSVs (small, informative)
+!output/model/benchmark/registry.json
+!output/model/benchmark/comparison.csv
+
+# Agent / IDE config
+.claude/
+.agents/
+
+# macOS
+.DS_Store
+.AppleDouble
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Secrets / env
+.env
+.env.*
+secrets.toml
+.streamlit/secrets.toml
+
+# Large rasters / DEMs
+data/raw/lidar/
+data/raw/dem/
