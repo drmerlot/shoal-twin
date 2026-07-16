@@ -1,0 +1,41 @@
+{
+  "open_channel": {
+    "status": "OK",
+    "feature_count": 819,
+    "bbox": {
+      "ok": true,
+      "actual_bbox": {
+        "xmin": -97.764539811345,
+        "ymin": 30.265141507169,
+        "xmax": -97.720272225423,
+        "ymax": 30.398826765222
+      },
+      "expected_bbox": {
+        "xmin": -97.795,
+        "ymin": 30.265,
+        "xmax": -97.72,
+        "ymax": 30.4
+      }
+    },
+    "field_coverage_pct": {
+      "drainage_id": 100.0,
+      "up_node_id": 100.0,
+      "dn_node_id": 100.0,
+      "up_invert": 43.7,
+      "dn_invert": 43.0,
+      "slope": 44.7,
+      "bottom_width": 45.5,
+      "top_width": 9.6,
+      "depth": 12.5,
+      "ditch_shape": 44.6,
+      "material": 25.5,
+      "length": 44.9,
+      "status": 100.0,
+      "watershed": 100.0
+    },
+    "output_file": "data/raw/gis/coa_open_channel_shl.geojson"
+  },
+  "drainage_pipe": {
+    "status": "FAILED"
+  }
+}
