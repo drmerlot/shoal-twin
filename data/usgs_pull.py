@@ -105,13 +105,15 @@ def download_gauge_record(
     log.info("Downloading USGS site %s  param %s  %s → %s",
              site_id, PARAM_CD, start, end)
     try:
-        import dataretrieval.nwis as nwis
+        import dataretrieval.waterdata as waterdata
     except ImportError:
         log.error("dataretrieval not installed — run: uv add dataretrieval")
         sys.exit(1)
 
     try:
-        raw, meta = nwis.get_iv(
+        # Use new API (replaces deprecated nwis.get_iv as of dataretrieval 1.x)
+        # Returns (DataFrame, metadata). Columns: '00060', '00060_cd', 'site_no'
+        raw, meta = waterdata.get_continuous(
             sites=site_id,
             parameterCd=PARAM_CD,
             start=start,

@@ -1,0 +1,17 @@
+{
+  "timestamp": "2026-07-16T17:51:42.087890",
+  "layers": {
+    "storm_pipes": {
+      "url": null,
+      "error": "Not found"
+    },
+    "manholes": {
+      "url": null,
+      "error": "Not found"
+    },
+    "watersheds": {
+      "url": null,
+      "error": "Not found"
+    }
+  }
+}
