@@ -36,6 +36,39 @@
     "output_file": "data/raw/gis/coa_open_channel_shl.geojson"
   },
   "drainage_pipe": {
-    "status": "FAILED"
+    "status": "OK",
+    "feature_count": 11645,
+    "bbox": {
+      "ok": true,
+      "actual_bbox": {
+        "xmin": -97.765951902175,
+        "ymin": 30.265134956393,
+        "xmax": -97.720152176535,
+        "ymax": 30.397596664945
+      },
+      "expected_bbox": {
+        "xmin": -97.795,
+        "ymin": 30.265,
+        "xmax": -97.72,
+        "ymax": 30.4
+      }
+    },
+    "field_coverage_pct": {
+      "drainage_id": 100.0,
+      "up_node_id": 100.0,
+      "dn_node_id": 100.0,
+      "up_invert": 36.5,
+      "dn_invert": 38.7,
+      "slope": 33.9,
+      "slope_est": 100.0,
+      "width": 98.0,
+      "height": 98.0,
+      "struct_shape": 98.4,
+      "material": 56.0,
+      "length": 46.8,
+      "status": 100.0,
+      "watershed": 100.0
+    },
+    "output_file": "data/raw/gis/coa_drainage_pipe_shl.geojson"
   }
 }
