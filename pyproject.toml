@@ -30,6 +30,10 @@ dependencies = [
     "plotly>=5.20",
     # Notebook-friendly (optional but useful for exploration)
     "ipykernel>=6.29",
+    "boto3>=1.43.51",
+    "cfgrib>=0.9.15.1",
+    "eccodes>=2.47.0",
+    "xarray>=2026.7.0",
 ]
 
 [dependency-groups]

@@ -50,13 +50,15 @@ DATASETS = {
         ],
     },
     "drainage_pipe": {
-        "id": "ybys-rwgs",
+        # NOTE: ybys-rwgs is a Socrata map view (no queryable data).
+        # d5s6-axa4 is the underlying dataset with full attribute rows.
+        "id": "d5s6-axa4",
         "label": "Drainage Pipe (storm sewers)",
         "out": "coa_drainage_pipe_shl.geojson",
         "key_fields": [
             "drainage_id", "up_node_id", "dn_node_id",
-            "up_invert", "dn_invert", "slope",
-            "diameter", "width", "height", "pipe_shape",
+            "up_invert", "dn_invert", "slope", "slope_est",
+            "width", "height", "struct_shape",
             "material", "length", "status", "watershed",
         ],
     },
