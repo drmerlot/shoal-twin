@@ -439,3 +439,73 @@ with c_center:
     <strong>Conclusion:</strong> The surrogate-driven framework successfully emulates high-fidelity 1D/2D hydrodynamics with negligible performance loss. The order-of-magnitude computational speedup opens the door to live, cloud-native ensemble forecasting systems that will replace this static proof-of-concept in the next phase of development.
     </div>
     """, unsafe_allow_html=True)
+
+# ── 4. Part III: Interactive Live Forecast Demo ────────────────────────────────
+
+st.markdown("<hr class='divider'>", unsafe_allow_html=True)
+st.header("Part III: Interactive Live Forecast Demo")
+st.markdown("Use the sliders below to adjust the incoming storm forecast. The ML Surrogate updates instantly, while the SWMM model requires you to manually run the physics engine.")
+
+col1, col2 = st.columns(2)
+with col1:
+    rain_in = st.slider("Rainfall (inches)", min_value=1.0, max_value=15.0, value=5.0, step=0.5)
+with col2:
+    dur_hr = st.slider("Storm Duration (hours)", min_value=1.0, max_value=24.0, value=6.0, step=1.0)
+
+# We fix the antecedent soil moisture for the demo
+api_mm = 35.0 
+
+# Predict Surrogate instantly
+import time
+t0_surr = time.time()
+cfs_surr, _ = predict(model, rain_in * 25.4, dur_hr, api_mm * 0.75)
+t_surr = time.time() - t0_surr
+
+if "swmm_cfs" not in st.session_state:
+    st.session_state.swmm_cfs = None
+    st.session_state.swmm_time = None
+    st.session_state.swmm_params = None
+
+if st.button("Run SWMM Physics Model"):
+    with st.spinner("Running SWMM (this takes ~35 seconds)..."):
+        from model.generate_mc_dataset import process_single_run
+        
+        with open(ROOT / "model" / "best_params.json") as f:
+            best_params = json.load(f)
+        
+        with open(ROOT / "model" / "swmm" / "shoal_creek_template.inp") as f:
+            inp_template = f.read()
+
+        row_dict = {
+            "run_id": "live_demo",
+            "rain_depth_mm": rain_in * 25.4,
+            "storm_dur_hr": dur_hr,
+            "api_5_mm": api_mm
+        }
+        
+        res = process_single_run(row_dict, inp_template, best_params)
+        if res:
+            _, _, meta_row, elapsed = res
+            st.session_state.swmm_cfs = meta_row["peak_cfs"]
+            st.session_state.swmm_time = elapsed
+            st.session_state.swmm_params = (rain_in, dur_hr)
+        else:
+            st.error("SWMM run failed or produced 0 CFS.")
+
+map_c1, map_c2 = st.columns(2)
+with map_c1:
+    st.markdown(f"**{t_surr*1000:.3f} ms ML Surrogate** (Peak: {cfs_surr:,.0f} CFS)")
+    st.pydeck_chart(make_pydeck_map(gis_channels, cfs_surr), use_container_width=True)
+    
+with map_c2:
+    if st.session_state.swmm_cfs is not None:
+        swmm_val = st.session_state.swmm_cfs
+        swmm_t = st.session_state.swmm_time
+        matched = (st.session_state.swmm_params == (rain_in, dur_hr))
+        
+        status = "✅ Synced" if matched else "⚠️ Out of Date"
+        st.markdown(f"**{swmm_t:.1f} s SWMM Physics Engine** (Peak: {swmm_val:,.0f} CFS) - {status}")
+        st.pydeck_chart(make_pydeck_map(gis_channels, swmm_val), use_container_width=True)
+    else:
+        st.markdown("**SWMM Physics Engine**")
+        st.info("Click 'Run SWMM Physics Model' to simulate the inundation for the current slider values.")
