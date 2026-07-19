@@ -473,7 +473,7 @@ if st.button("Run SWMM Physics Model"):
         with open(ROOT / "model" / "best_params.json") as f:
             best_params = json.load(f)
         
-        with open(ROOT / "model" / "swmm" / "shoal_creek_template.inp") as f:
+        with open(ROOT / "model" / "shoal_creek_memorial_day_2015.inp") as f:
             inp_template = f.read()
 
         row_dict = {
