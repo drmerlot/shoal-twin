@@ -61,3 +61,10 @@ secrets.toml
 # Large rasters / DEMs
 data/raw/lidar/
 data/raw/dem/
+data/raw/mrms/
+data/raw/mc/
+logs/
+model/*.out
+model/*.rpt
+model/checkpoints/
+.venv/

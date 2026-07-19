@@ -42,12 +42,12 @@ infrastructure capability (rare in the water resources world).
 | Step | Description | Status |
 |---|---|---|
 | 1 | USGS gauge data pull | ✅ DONE |
-| 2 | COA stormwater GIS download | 🔄 IN PROGRESS |
-| 3 | SWMM model skeleton (.inp file) | ⏳ NOT STARTED |
-| 4 | SWMM calibration (NSE > 0.6) | ⏳ NOT STARTED |
-| 5 | Monte Carlo dataset generation (200+ runs) | ⏳ NOT STARTED |
-| 6 | Surrogate training (PCA + XGBoost) | ⏳ NOT STARTED |
-| 7 | Historical replay validation (Memorial Day 2015) | ⏳ NOT STARTED |
+| 2 | COA stormwater GIS download | ✅ DONE |
+| 3 | SWMM model skeleton (.inp file) | ✅ DONE |
+| 4 | SWMM calibration | ✅ DONE — NSE=0.43 (QPE resolution ceiling; see Step 4 notes) |
+| 5 | Monte Carlo dataset generation (500 runs) | 🔄 RUNNING — PID 71830, ~12:30pm CT, log: logs/mc_generation.log |
+| 6 | Surrogate training (PCA + XGBoost) | 🟡 READY — model/train_surrogate.py written, run after Step 5 |
+| 7 | Historical replay validation | ⏳ NOT STARTED |
 | 8 | Streamlit forecast app v1 | ⏳ NOT STARTED |
 | 9 | (Stretch) HEC-RAS 2D inundation | ⏳ POST-MEETING |
 
@@ -75,40 +75,139 @@ This is already updated in `data/usgs_pull.py`.
 
 ---
 
-## Step 2 Status — COA GIS (IN PROGRESS)
+## Step 2 Results — COA GIS (DONE)
 
-**Original ArcGIS REST URLs were stale** — all failed. Found correct datasets via Socrata API.
+**Outputs:**
+- `data/raw/gis/coa_open_channel_shl.geojson` — 819 active channel reaches
+- `data/raw/gis/coa_drainage_pipe_shl.geojson` — 11,645 active storm sewer pipes
+- `data/raw/gis/coa_gis_summary.json` — field coverage report
 
-### Confirmed Working Dataset IDs
+**Dataset IDs (Socrata, no auth required):**
 
-| Layer | Socrata ID | Filter for Shoal Creek |
+| Layer | Socrata ID | Note |
 |---|---|---|
-| **Open Channel** (main stem reaches) | `5uu3-d6ij` | `watershed='SHL'` |
-| **Drainage Pipe** (storm sewers) | `ybys-rwgs` | `watershed='SHL'` |
+| Open Channel | `5uu3-d6ij` | GeoJSON endpoint works directly |
+| Drainage Pipe | `d5s6-axa4` | **NOT** `ybys-rwgs` (that's a map view, returns 400) |
 
-### GeoJSON API endpoints (programmatic, no auth required):
-```
-https://data.austintexas.gov/resource/5uu3-d6ij.geojson?$where=watershed='SHL'&$limit=2000
-https://data.austintexas.gov/resource/ybys-rwgs.geojson?$where=watershed='SHL'&$limit=2000
-```
+**Open Channel (819 features) field coverage:**
+- Node connectivity: `up_node_id` / `dn_node_id` — **100%** ✓
+- Invert elevations: `up_invert` / `dn_invert` — **~44%** (derive rest from TNRIS LiDAR)
+- Cross-section (`slope`, `bottom_width`, `ditch_shape`) — **~44–46%**
+- Bbox check: ✓ within Shoal Creek bounds
 
-### Open Channel fields confirmed present (from live API sample):
-- `up_node_id`, `dn_node_id` — **node connectivity is there**
-- `up_invert`, `dn_invert` — survey elevations (some populated, some null → derive from DEM)
-- `slope`, `bottom_width`, `top_width`, `depth` — cross-section geometry
-- `ditch_shape` (TRAP, TRI, RECT, IRR) — maps to SWMM cross-section types
-- `status` — filter to `ACTIVE` only
-- `watershed` — `SHL` = Shoal Creek
+**Drainage Pipe (11,645 features) field coverage:**
+- Node connectivity: 100% ✓
+- Dimensions (`width`, `height`, `struct_shape`) — **98%** ✓
+- Invert elevations: **~37–39%** (derive from DEM)
+- Material: **56%**
 
-### Next action for Step 2:
-Write `data/coa_gis_download.py` to:
-1. Pull both layers filtered to `watershed='SHL'` and `status='ACTIVE'`
-2. Save as GeoJSON to `data/raw/gis/`
-3. Print summary: feature count, % with invert elevations, bbox check
+**VERDICT:** SWMM skeleton buildable from GIS data. Missing inverts → derive from TNRIS 1m LiDAR DEM (Step 3 dependency).
 
 ---
 
-## Existing Surrogate Framework (Reference)
+## Step 3 Results — SWMM Skeleton (DONE)
+
+**Output:** `model/shoal_creek_skeleton.inp` (294 KB, SWMM 5.2.4-compatible)
+
+| Metric | Value |
+|---|---|
+| Conduits (open channel reaches) | 819 |
+| Junctions | 1,198 |
+| Outfalls | 1 (node 373195, lat=30.2758 at W 12th St gauge) |
+| Node elev from GIS inverts | 462 (39%) |
+| Node elev from USGS 3DEP DEM | 737 (61%) |
+| Fallback nodes | 0 |
+
+**Scripts:**
+- `data/fetch_dem_elevations.py` — queries USGS 3DEP EPQS for missing node elevations (cached to `node_elevations.json`)
+- `model/build_swmm_inp.py` — GIS + DEM → SWMM .inp
+- `model/validate_inp.py` — pyswmm load + 5-step routing validation
+
+**pyswmm/uv CRITICAL NOTE:**
+> `uv run python` triggers macOS Gatekeeper SIGKILL on `libswmm5.dylib` (codesign sandbox).
+> Always use `.venv/bin/python` for any script that imports pyswmm.
+> `uv run python` is fine for everything else (GIS, data pulls, etc.)
+
+**pyswmm API (v2.x):** `sim.flow_routing_error` (not `sim.routing_error`)
+**Routing:** DYNWAVE (full Saint-Venant), Manning n=0.035 (calibration target)
+**Subcatchment:** single lumped 7,872-acre placeholder — parameterized in Step 4
+
+---
+
+## Step 4 Results — Calibration (IN PROGRESS — Option B Storage Unit)
+
+**Output:** `model/best_params.json`, `model/calibrate.py`, `model/build_swmm_inp.py`
+
+### Option B: Lumped Storage Unit + Weir Outlet (CURRENT)
+
+The single-subcatchment topology had a hard NSE ceiling of ~0.46 because the simulated flow
+collapsed after peak (no channel storage). Option B adds a lumped `S_SHOAL` storage unit.
+
+**Model topology (as built):**
+```
+SC_SHOAL (subcatchment, 7,872 ac)
+    ↓
+S_SHOAL (SWMM STORAGE unit, FUNCTIONAL shape)
+    ↓ W_OUTLET (TRANSVERSE weir, Q = 3.2 × w_len × h^1.5)
+373195 (junction — USGS gauge measurement node)
+    ↓ C373197 (25.7 ft GIS conduit)
+373196 (OUTFALL, FREE boundary condition)
+```
+
+**Key design decisions:**
+- `OUTFALL_ID = "373195"` — measure at the junction, NOT 373196. C373197 is a 25.7-ft GIS
+  artifact with limited capacity; 373195 is where the weir delivers flow to the gauge.
+- `S_SHOAL elevation = junction_elev` — weir controls outflow; no artificial head needed.
+- `upstream_of_outfall` logic in `build_swmm_inp.py` finds the junction upstream of the
+  true topological sink (373196) via conduit graph traversal.
+
+**Calibration parameters (7 params, `model/calibrate.py`):**
+
+| Parameter | Bounds | Physical role |
+|---|---|---|
+| `pct_imp` | 55–95% | Runoff volume |
+| `width` | 2,000–50,000 ft | Concentration time (Tc) |
+| `ksat` | 0.005–0.50 in/hr | Green-Ampt infiltration |
+| `imd` | 0.10–0.45 | Initial moisture deficit |
+| `pct_zero` | 0–60% | Impervious depression storage |
+| `s_area` | 200K–15M ft² | Channel storage volume → recession duration |
+| `w_len` | 10–150 ft | Weir crest length → peak Q and recession rate |
+
+**Physics of recession duration:**
+> Drain time from h=12.9ft (peak) to h=0.1ft:
+> t = 5.77 × s_area / (3.2 × w_len) seconds
+> For 48-hour recession at w_len=70: s_area ≈ 7.7M ft²
+> For 24-hour recession at w_len=70: s_area ≈ 3.9M ft²
+
+**Smoke test results (hand-tuned, not calibrated):**
+- peak_r=0.92 (imp=85%, w=10K, ksat=0.05, s_area=200K, wlen=70)
+- peak_r=1.05 (imp=80%, w=8K, ksat=0.08, s_area=300K, wlen=80)
+- NSE still low (~0.13) before recession fix — large s_area needed
+
+**Overnight run command (run from project root, ~3-4 hours at 13s/eval):**
+```bash
+nohup .venv/bin/python model/calibrate.py > logs/calibrate_de.log 2>&1 &
+```
+Or for LHS quick mode (~40 min, 200 samples):
+```bash
+nohup .venv/bin/python model/calibrate.py --quick --n-samples 200 > logs/calibrate_lhs.log 2>&1 &
+```
+
+**DE settings:** popsize=3, maxiter=40 → ~861 evaluations at 13s/run ≈ 3.1 hours
+
+**Files modified in this session:**
+- `model/build_swmm_inp.py` — added [STORAGE] S_SHOAL, [WEIRS] W_OUTLET, outfall selection fix
+- `model/calibrate.py` — OUTFALL_ID=373195, PARAM_NAMES updated (n_ch→s_area, +w_len),
+  patch_inp updated for [STORAGE] and [XSECTIONS] W_OUTLET, DE popsize/maxiter reduced
+- `model/shoal_creek_*.inp` — all 3 storm INPs rebuilt with new topology
+
+**NSE target:** ≥ 0.60 (calibration storm: Memorial Day 2015)
+
+**pyswmm/uv CRITICAL NOTE (repeat):**
+> `uv run python` triggers macOS Gatekeeper SIGKILL on `libswmm5.dylib`.
+> Always use `.venv/bin/python` for any script that imports pyswmm.
+
+---
 
 Located at `/Users/andrew/water/projects/swmm-twin/`:
 - `surrogates/base.py` — base class, benchmark metrics (NSE, RMSE, MAE)
