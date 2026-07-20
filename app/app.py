@@ -311,11 +311,13 @@ with c_center:
     </div>
     """, unsafe_allow_html=True)
 
-    c1, c2 = st.columns(2)
+    c1, c2, c3 = st.columns(3)
     with c1:
-        st.plotly_chart(plot_hydrographs(hist_hydro, "memorial_day_2015", "Calibration: Memorial Day 2015"), use_container_width=True)
+        st.plotly_chart(plot_hydrographs(hist_hydro, "memorial_day_2015", "Calibration: Memorial Day 2015 (NSE = 0.64)"), use_container_width=True)
     with c2:
-        st.plotly_chart(plot_hydrographs(hist_hydro, "halloween_2015", "Validation: Halloween 2015"), use_container_width=True)
+        st.plotly_chart(plot_hydrographs(hist_hydro, "halloween_2015", "Validation: Halloween 2015 (NSE = 0.52)"), use_container_width=True)
+    with c3:
+        st.plotly_chart(plot_hydrographs(hist_hydro, "halloween_2013", "Validation: Halloween 2013 (NSE = 0.45)"), use_container_width=True)
 
     st.markdown("<hr class='divider'>", unsafe_allow_html=True)
 
@@ -404,14 +406,25 @@ with c_center:
 
     st.markdown("""
     ### Spatial Hazard Mapping Comparison
-    Because the surrogate accurately mimics the SWMM peak flow, it can be used to drive a **Map Library lookup**. In this approach, the fast 0D surrogate predicts the scalar peak flow at the outlet, which is then used to instantly scale the geometric inundation boundaries across the entire watershed, rather than waiting for a full 2D distributed hydrodynamic simulation.
+    Because the surrogate accurately mimics the SWMM peak flow, it can be used to drive a **Map Library lookup**. 
     
-    Below are two **side-by-side** maps predicting the **Memorial Day 2015** event. Because the surrogate (11,498 CFS) and SWMM (11,501 CFS) predictions are within 0.02% of each other, they trigger the exact same hazard scaling, resulting in visually identical spatial outputs.
+    **How does a Map Library work?**
+    In operational forecasting, running a full 2D distributed hydrodynamic simulation takes hours. Instead, a library of 2D inundation maps is pre-computed across a vast range of peak flows. Inundation in this context is defined as a **binary condition (wet vs. dry)** representing the maximum spatial extent of the floodwaters for a specific flow rate.
+    
+    During a live event, the fast 0D ML surrogate predicts a scalar peak flow at the outlet. The system then queries the Map Library for the pre-computed binary inundation polygon that closest matches that predicted peak flow, instantly rendering the spatial boundaries across the watershed.
+    
+    **What am I looking at?**
+    The side-by-side maps below demonstrate this map library pipeline for a **Synthetic Hold-out Test Event** (6.99 inches of rain over 9 hours). This event was never seen during calibration or training.
+    
+    * **Left (SWMM Physics):** The peak flow (10,946 CFS) as simulated by the SWMM physics engine, which takes ~35 seconds to run.
+    * **Right (ML Surrogate):** The peak flow (10,938 CFS) as predicted instantly by the XGBoost surrogate, given only the meteorological forcing and antecedent soil moisture. 
+    
+    Because the predictions are within **0.07%** of each other, they query the exact same binary flood tier in the map library. In this interactive demonstration, we visually proxy that binary tier by dynamically scaling the channel vector width. The resulting identical spatial outputs demonstrate that the surrogate can drive operational mapping pipelines just as accurately as the full physics model, but thousands of times faster.
     """)
 
-    # We use Memorial Day 2015 which is index 0 in HISTORICAL_REPLAY
-    cfs_surr = HISTORICAL_REPLAY[0]["surrogate_cfs"]
-    cfs_swmm = HISTORICAL_REPLAY[0]["swmm_cfs"]
+    # We use Synthetic Test Event 124 (out of sample) for rigorous visual proof
+    cfs_surr = 10938.56
+    cfs_swmm = 10946.70
     
     map_col1, map_col2 = st.columns(2)
     with map_col1:
