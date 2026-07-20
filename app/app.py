@@ -494,32 +494,41 @@ with map_c2:
 
     if st.button("Run SWMM Physics Model", use_container_width=True):
         with st.spinner("Running SWMM (this takes ~35 seconds)..."):
-            from model.generate_mc_dataset import process_single_run
-            import concurrent.futures
+            import subprocess
+            import json
+            import sys
             
-            with open(ROOT / "model" / "best_params.json") as f:
-                best_params = json.load(f)
+            # Run the SWMM physics model in a completely isolated subprocess
+            # This prevents libswmm5.dll from segfaulting the Streamlit process
+            script_path = ROOT / "model" / "run_live_swmm.py"
+            cmd = [
+                sys.executable, str(script_path),
+                "--rain", str(rain_in),
+                "--dur", str(dur_hr),
+                "--api", str(api_mm)
+            ]
             
-            with open(ROOT / "model" / "shoal_creek_memorial_day_2015.inp") as f:
-                inp_template = f.read()
-
-            row_dict = {
-                "run_id": "live_demo",
-                "rain_depth_mm": rain_in * 25.4,
-                "storm_dur_hr": dur_hr,
-                "api_5_mm": api_mm
-            }
-            
-            # Run in a separate process to avoid PySWMM DLL crashing the Streamlit process
-            with concurrent.futures.ProcessPoolExecutor(max_workers=1) as executor:
-                future = executor.submit(process_single_run, row_dict, inp_template, best_params)
-                res = future.result()
+            try:
+                # Capture output to get the JSON result
+                result = subprocess.run(cmd, capture_output=True, text=True, check=True)
                 
-            if res:
-                _, _, meta_row, elapsed = res
-                st.session_state.swmm_cfs = meta_row["peak_cfs"]
-                st.session_state.swmm_time = elapsed
-                st.session_state.swmm_params = (rain_in, dur_hr)
-                st.rerun()
-            else:
-                st.error("SWMM run failed or produced 0 CFS.")
+                # Parse the JSON output printed by the script
+                # The script suppresses pyswmm stdout and only prints the JSON at the end
+                res = None
+                for line in result.stdout.strip().split('\n'):
+                    if line.startswith('{') and '"success"' in line:
+                        res = json.loads(line)
+                        break
+                        
+                if res and res.get("success"):
+                    st.session_state.swmm_cfs = res["peak_cfs"]
+                    st.session_state.swmm_time = res["elapsed"]
+                    st.session_state.swmm_params = (rain_in, dur_hr)
+                    st.rerun()
+                else:
+                    st.error("SWMM run failed or produced 0 CFS.")
+                    if result.stderr:
+                        st.error(f"Error details: {result.stderr}")
+            except subprocess.CalledProcessError as e:
+                st.error(f"SWMM subprocess crashed (exit code {e.returncode}).")
+                st.error(e.stderr)
