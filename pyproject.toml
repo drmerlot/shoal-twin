@@ -34,6 +34,8 @@ dependencies = [
     "cfgrib>=0.9.15.1",
     "eccodes>=2.47.0",
     "xarray>=2026.7.0",
+    "folium>=0.20.0",
+    "streamlit-folium>=0.27.2",
 ]
 
 [dependency-groups]

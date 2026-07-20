@@ -48,37 +48,33 @@ DRY_ONLY         NO
 [RAINGAGES]
 ;;Name           Format    Interval SCF      Source
 ;;-------------- --------- -------- -------- --------------------
-RG1              INTENSITY 0:05     1.0      TIMESERIES RG_memorial_day_2015
+RG1              INTENSITY 1:00     1.0      TIMESERIES RG_memorial_day_2015
 
 [SUBCATCHMENTS]
 ;;Name           Rain Gage        Outlet           Area     %Imperv  Width    %Slope   CurbLen  SnowPack
 ;;-------------- ---------------- ---------------- -------- -------- -------- -------- -------- --------
-SC_SHOAL         RG1              S_SHOAL          7872     60       5000     1.5      0
+SC_UPPER         RG1              J_HEAD           7872     60       5000     1.5      0
+SC_LOWER         RG1              J_LOWER          0        60       5000     1.5      0
 
 
 [SUBAREAS]
 ;;Subcatchment   N-Imperv   N-Perv     S-Imperv   S-Perv     PctZero    RouteTo    PctRouted
 ;;-------------- ---------- ---------- ---------- ---------- ---------- ---------- ----------
-SC_SHOAL         0.011      0.10       0.05       0.10       25         OUTLET
+SC_UPPER         0.011      0.10       0.05       0.10       25         OUTLET
+SC_LOWER         0.011      0.10       0.05       0.10       25         OUTLET
 
 [INFILTRATION]
 ;;Subcatchment   Suction    Ksat       IMD
 ;;-------------- ---------- ---------- ----------
-SC_SHOAL         3.50       0.10       0.30
-
-[STORAGE]
-;;Name           Elev    MaxDepth  InitDepth  Shape      Coeff1   Coeff2   Coeff3   SurDepth  Evap
-;;-------------- ------- --------- ---------- ---------- -------- -------- -------- --------- ----
-S_SHOAL          510.63   15.0      0          FUNCTIONAL 0        1500000  0        0         0
-
-[WEIRS]
-;;Name           From Node        To Node          Type         CrestHt  Qcoeff  Gated  EndCon  EndCoeff  Surcharge
-;;-------------- ---------------- ---------------- ------------ -------- ------- ------ ------- --------- ---------
-W_OUTLET         S_SHOAL          373195           TRANSVERSE   0        3.2     NO     0       0         YES
+SC_UPPER         3.50       0.10       0.30
+SC_LOWER         3.50       0.10       0.30
 
 [JUNCTIONS]
 ;;Name           Elevation  MaxDepth   InitDepth  SurDepth   Aponded
 ;;-------------- ---------- ---------- ---------- ---------- ----------
+J_HEAD           635.00     15.0       0          0          0
+J_MID            552.00     15.0       0          0          0
+J_LOWER          525.00     15.0       0          0          0
 1025299          532.47     10.0       0          0          0
 1025300          531.51     10.0       0          0          0
 1068083          469.71     10.0       0          0          0
@@ -1286,6 +1282,9 @@ W_OUTLET         S_SHOAL          373195           TRANSVERSE   0        3.2    
 [CONDUITS]
 ;;Name           From Node        To Node          Length     Roughness  InOffset   OutOffset  InitFlow   MaxFlow
 ;;-------------- ---------------- ---------------- ---------- ---------- ---------- ---------- ---------- ----------
+R_UPPER          J_HEAD           J_MID            9000.0     0.0400     0          0          0          0
+R_MID            J_MID            J_LOWER          7000.0     0.0400     0          0          0          0
+R_LOWER          J_LOWER          373195           3500.0     0.0400     0          0          0          0
 C466334          466331           466332           363.8      0.0350     0          0          0          0
 C16579           16580            86163            132.8      0.0350     0          0          0          0
 C474429          474425           470352           360.4      0.0350     0          0          0          0
@@ -2109,7 +2108,9 @@ C526674          526659           526662           23.9       0.0350     0      
 [XSECTIONS]
 ;;Link           Shape        Geom1            Geom2      Geom3      Geom4      Barrels    Culvert
 ;;-------------- ------------ ---------------- ---------- ---------- ---------- ---------- ----------
-W_OUTLET         RECT_OPEN    15.00            60.0       0          0          1
+R_UPPER          TRAPEZOIDAL  15.00            80.00      3.00       3.00       1
+R_MID            TRAPEZOIDAL  15.00            80.00      3.00       3.00       1
+R_LOWER          TRAPEZOIDAL  15.00            80.00      3.00       3.00       1
 C466334          TRIANGULAR   8.00             10.00      0          0          1
 C16579           TRAPEZOIDAL  10.00            48.00      2.00       2.00       1
 C474429          TRAPEZOIDAL  10.00            10.00      2.00       2.00       1
@@ -2933,584 +2934,104 @@ C526674          RECT_OPEN    10.00            42.00      0          0          
 [TIMESERIES]
 ;;Name           Date       Time       Value
 ;;-------------- ---------- ---------- ----------
-;; QPE source: IEM ASOS KATT_5min (576 obs)  storm: memorial_day_2015
-;; Total precip: 62.40 in  peak: 6.72 in/hr at 05/25 15:30Z
-RG_memorial_day_2015 05/25/2015  00:00 0.0000
-RG_memorial_day_2015 05/25/2015  00:05 0.0000
-RG_memorial_day_2015 05/25/2015  00:10 0.0000
-RG_memorial_day_2015 05/25/2015  00:15 0.0000
-RG_memorial_day_2015 05/25/2015  00:20 0.0000
-RG_memorial_day_2015 05/25/2015  00:25 0.0000
-RG_memorial_day_2015 05/25/2015  00:30 0.0000
-RG_memorial_day_2015 05/25/2015  00:35 0.0000
-RG_memorial_day_2015 05/25/2015  00:40 0.0000
-RG_memorial_day_2015 05/25/2015  00:45 0.0000
-RG_memorial_day_2015 05/25/2015  00:50 0.0000
-RG_memorial_day_2015 05/25/2015  00:55 0.0000
-RG_memorial_day_2015 05/25/2015  01:00 0.0000
-RG_memorial_day_2015 05/25/2015  01:05 0.0000
-RG_memorial_day_2015 05/25/2015  01:10 0.0000
-RG_memorial_day_2015 05/25/2015  01:15 0.0000
-RG_memorial_day_2015 05/25/2015  01:20 0.0000
-RG_memorial_day_2015 05/25/2015  01:25 0.0000
-RG_memorial_day_2015 05/25/2015  01:30 0.0000
-RG_memorial_day_2015 05/25/2015  01:35 0.0000
-RG_memorial_day_2015 05/25/2015  01:40 0.0000
-RG_memorial_day_2015 05/25/2015  01:45 0.0000
-RG_memorial_day_2015 05/25/2015  01:50 0.0000
-RG_memorial_day_2015 05/25/2015  01:55 0.0000
-RG_memorial_day_2015 05/25/2015  02:00 0.0000
-RG_memorial_day_2015 05/25/2015  02:05 0.0000
-RG_memorial_day_2015 05/25/2015  02:10 0.0000
-RG_memorial_day_2015 05/25/2015  02:15 0.0000
-RG_memorial_day_2015 05/25/2015  02:20 0.0000
-RG_memorial_day_2015 05/25/2015  02:25 0.0000
-RG_memorial_day_2015 05/25/2015  02:30 0.0000
-RG_memorial_day_2015 05/25/2015  02:35 0.0000
-RG_memorial_day_2015 05/25/2015  02:40 0.0000
-RG_memorial_day_2015 05/25/2015  02:45 0.0000
-RG_memorial_day_2015 05/25/2015  02:50 0.0000
-RG_memorial_day_2015 05/25/2015  02:55 0.0000
-RG_memorial_day_2015 05/25/2015  03:00 0.0000
-RG_memorial_day_2015 05/25/2015  03:05 0.0000
-RG_memorial_day_2015 05/25/2015  03:10 0.0000
-RG_memorial_day_2015 05/25/2015  03:15 0.0000
-RG_memorial_day_2015 05/25/2015  03:20 0.0000
-RG_memorial_day_2015 05/25/2015  03:25 0.0000
-RG_memorial_day_2015 05/25/2015  03:30 0.0000
-RG_memorial_day_2015 05/25/2015  03:35 0.0000
-RG_memorial_day_2015 05/25/2015  03:40 0.0000
-RG_memorial_day_2015 05/25/2015  03:45 0.0000
-RG_memorial_day_2015 05/25/2015  03:50 0.0000
-RG_memorial_day_2015 05/25/2015  03:55 0.0000
-RG_memorial_day_2015 05/25/2015  04:00 0.0000
-RG_memorial_day_2015 05/25/2015  04:05 0.0000
-RG_memorial_day_2015 05/25/2015  04:10 0.0000
-RG_memorial_day_2015 05/25/2015  04:15 0.0000
-RG_memorial_day_2015 05/25/2015  04:20 0.0000
-RG_memorial_day_2015 05/25/2015  04:25 0.0000
-RG_memorial_day_2015 05/25/2015  04:30 0.0000
-RG_memorial_day_2015 05/25/2015  04:35 0.0000
-RG_memorial_day_2015 05/25/2015  04:40 0.0000
-RG_memorial_day_2015 05/25/2015  04:45 0.0000
-RG_memorial_day_2015 05/25/2015  04:50 0.0000
-RG_memorial_day_2015 05/25/2015  04:55 0.0000
-RG_memorial_day_2015 05/25/2015  05:00 0.0000
-RG_memorial_day_2015 05/25/2015  05:05 0.0000
-RG_memorial_day_2015 05/25/2015  05:10 0.0000
-RG_memorial_day_2015 05/25/2015  05:15 0.0000
-RG_memorial_day_2015 05/25/2015  05:20 0.0000
-RG_memorial_day_2015 05/25/2015  05:25 0.0000
-RG_memorial_day_2015 05/25/2015  05:30 0.0000
-RG_memorial_day_2015 05/25/2015  05:35 0.0000
-RG_memorial_day_2015 05/25/2015  05:40 0.0000
-RG_memorial_day_2015 05/25/2015  05:45 0.0000
-RG_memorial_day_2015 05/25/2015  05:50 0.0000
-RG_memorial_day_2015 05/25/2015  05:55 0.0000
-RG_memorial_day_2015 05/25/2015  06:00 0.0000
-RG_memorial_day_2015 05/25/2015  06:05 0.0000
-RG_memorial_day_2015 05/25/2015  06:10 0.0000
-RG_memorial_day_2015 05/25/2015  06:15 0.0000
-RG_memorial_day_2015 05/25/2015  06:20 0.0000
-RG_memorial_day_2015 05/25/2015  06:25 0.0000
-RG_memorial_day_2015 05/25/2015  06:30 0.0000
-RG_memorial_day_2015 05/25/2015  06:35 0.0000
-RG_memorial_day_2015 05/25/2015  06:40 0.0000
-RG_memorial_day_2015 05/25/2015  06:45 0.0000
-RG_memorial_day_2015 05/25/2015  06:50 0.0000
-RG_memorial_day_2015 05/25/2015  06:55 0.0000
-RG_memorial_day_2015 05/25/2015  07:00 0.0000
-RG_memorial_day_2015 05/25/2015  07:05 0.0000
-RG_memorial_day_2015 05/25/2015  07:10 0.0000
-RG_memorial_day_2015 05/25/2015  07:15 0.0000
-RG_memorial_day_2015 05/25/2015  07:20 0.0000
-RG_memorial_day_2015 05/25/2015  07:25 0.0000
-RG_memorial_day_2015 05/25/2015  07:30 0.0000
-RG_memorial_day_2015 05/25/2015  07:35 0.0000
-RG_memorial_day_2015 05/25/2015  07:40 0.0000
-RG_memorial_day_2015 05/25/2015  07:45 0.0000
-RG_memorial_day_2015 05/25/2015  07:50 0.0000
-RG_memorial_day_2015 05/25/2015  07:55 0.0000
-RG_memorial_day_2015 05/25/2015  08:00 0.0000
-RG_memorial_day_2015 05/25/2015  08:05 0.0000
-RG_memorial_day_2015 05/25/2015  08:10 0.0000
-RG_memorial_day_2015 05/25/2015  08:15 0.0000
-RG_memorial_day_2015 05/25/2015  08:20 0.0000
-RG_memorial_day_2015 05/25/2015  08:25 0.0000
-RG_memorial_day_2015 05/25/2015  08:30 0.0000
-RG_memorial_day_2015 05/25/2015  08:35 0.0000
-RG_memorial_day_2015 05/25/2015  08:40 0.0000
-RG_memorial_day_2015 05/25/2015  08:45 0.0000
-RG_memorial_day_2015 05/25/2015  08:50 0.0000
-RG_memorial_day_2015 05/25/2015  08:55 0.0000
-RG_memorial_day_2015 05/25/2015  09:00 0.0000
-RG_memorial_day_2015 05/25/2015  09:05 0.0000
-RG_memorial_day_2015 05/25/2015  09:10 0.0000
-RG_memorial_day_2015 05/25/2015  09:15 0.0000
-RG_memorial_day_2015 05/25/2015  09:20 0.0000
-RG_memorial_day_2015 05/25/2015  09:25 0.0000
-RG_memorial_day_2015 05/25/2015  09:30 0.0000
-RG_memorial_day_2015 05/25/2015  09:35 0.0000
-RG_memorial_day_2015 05/25/2015  09:40 0.0000
-RG_memorial_day_2015 05/25/2015  09:45 0.0000
-RG_memorial_day_2015 05/25/2015  09:50 0.0000
-RG_memorial_day_2015 05/25/2015  09:55 0.0000
-RG_memorial_day_2015 05/25/2015  10:00 0.0000
-RG_memorial_day_2015 05/25/2015  10:05 0.0000
-RG_memorial_day_2015 05/25/2015  10:10 0.0000
-RG_memorial_day_2015 05/25/2015  10:15 0.0000
-RG_memorial_day_2015 05/25/2015  10:20 0.0000
-RG_memorial_day_2015 05/25/2015  10:25 0.0000
-RG_memorial_day_2015 05/25/2015  10:30 0.0000
-RG_memorial_day_2015 05/25/2015  10:35 0.0000
-RG_memorial_day_2015 05/25/2015  10:40 0.0000
-RG_memorial_day_2015 05/25/2015  10:45 0.0000
-RG_memorial_day_2015 05/25/2015  10:50 0.0000
-RG_memorial_day_2015 05/25/2015  10:55 0.0000
-RG_memorial_day_2015 05/25/2015  11:00 0.0000
-RG_memorial_day_2015 05/25/2015  11:05 0.0000
-RG_memorial_day_2015 05/25/2015  11:10 0.0000
-RG_memorial_day_2015 05/25/2015  11:15 0.0000
-RG_memorial_day_2015 05/25/2015  11:20 0.0000
-RG_memorial_day_2015 05/25/2015  11:25 0.0000
-RG_memorial_day_2015 05/25/2015  11:30 0.0000
-RG_memorial_day_2015 05/25/2015  11:35 0.0000
-RG_memorial_day_2015 05/25/2015  11:40 0.0000
-RG_memorial_day_2015 05/25/2015  11:45 0.0000
-RG_memorial_day_2015 05/25/2015  11:50 0.0000
-RG_memorial_day_2015 05/25/2015  11:55 0.0000
-RG_memorial_day_2015 05/25/2015  12:00 0.0000
-RG_memorial_day_2015 05/25/2015  12:05 0.0000
-RG_memorial_day_2015 05/25/2015  12:10 0.0000
-RG_memorial_day_2015 05/25/2015  12:15 0.0000
-RG_memorial_day_2015 05/25/2015  12:20 0.0000
-RG_memorial_day_2015 05/25/2015  12:25 0.0000
-RG_memorial_day_2015 05/25/2015  12:30 0.0000
-RG_memorial_day_2015 05/25/2015  12:35 0.0000
-RG_memorial_day_2015 05/25/2015  12:40 0.0000
-RG_memorial_day_2015 05/25/2015  12:45 0.0000
-RG_memorial_day_2015 05/25/2015  12:50 0.0000
-RG_memorial_day_2015 05/25/2015  12:55 0.7200
-RG_memorial_day_2015 05/25/2015  13:00 0.0000
-RG_memorial_day_2015 05/25/2015  13:05 0.9600
-RG_memorial_day_2015 05/25/2015  13:10 1.8000
-RG_memorial_day_2015 05/25/2015  13:15 0.2400
-RG_memorial_day_2015 05/25/2015  13:20 0.7200
-RG_memorial_day_2015 05/25/2015  13:25 0.0000
-RG_memorial_day_2015 05/25/2015  13:30 3.7200
-RG_memorial_day_2015 05/25/2015  13:35 1.3200
-RG_memorial_day_2015 05/25/2015  13:40 0.4800
-RG_memorial_day_2015 05/25/2015  13:45 0.2400
-RG_memorial_day_2015 05/25/2015  13:50 0.1200
-RG_memorial_day_2015 05/25/2015  13:55 0.1200
-RG_memorial_day_2015 05/25/2015  14:00 0.0000
-RG_memorial_day_2015 05/25/2015  14:05 0.0000
-RG_memorial_day_2015 05/25/2015  14:10 0.1200
-RG_memorial_day_2015 05/25/2015  14:15 0.0000
-RG_memorial_day_2015 05/25/2015  14:20 0.6000
-RG_memorial_day_2015 05/25/2015  14:25 0.2400
-RG_memorial_day_2015 05/25/2015  14:30 4.6800
-RG_memorial_day_2015 05/25/2015  14:35 6.0000
-RG_memorial_day_2015 05/25/2015  14:40 2.8800
-RG_memorial_day_2015 05/25/2015  14:45 3.8400
-RG_memorial_day_2015 05/25/2015  14:50 4.5600
-RG_memorial_day_2015 05/25/2015  14:55 2.8800
-RG_memorial_day_2015 05/25/2015  15:00 0.1200
-RG_memorial_day_2015 05/25/2015  15:05 0.6000
-RG_memorial_day_2015 05/25/2015  15:10 1.5600
-RG_memorial_day_2015 05/25/2015  15:15 0.3600
-RG_memorial_day_2015 05/25/2015  15:20 1.4400
-RG_memorial_day_2015 05/25/2015  15:25 4.0800
-RG_memorial_day_2015 05/25/2015  15:30 6.7200
-RG_memorial_day_2015 05/25/2015  15:35 6.4800
-RG_memorial_day_2015 05/25/2015  15:40 0.3600
-RG_memorial_day_2015 05/25/2015  15:45 0.1200
-RG_memorial_day_2015 05/25/2015  15:50 1.4400
-RG_memorial_day_2015 05/25/2015  15:55 1.0800
-RG_memorial_day_2015 05/25/2015  16:00 0.0000
-RG_memorial_day_2015 05/25/2015  16:05 0.6000
-RG_memorial_day_2015 05/25/2015  16:10 1.0800
-RG_memorial_day_2015 05/25/2015  16:15 0.0000
-RG_memorial_day_2015 05/25/2015  16:20 0.1200
-RG_memorial_day_2015 05/25/2015  16:25 0.0000
-RG_memorial_day_2015 05/25/2015  16:30 0.0000
-RG_memorial_day_2015 05/25/2015  16:35 0.0000
-RG_memorial_day_2015 05/25/2015  16:40 0.0000
-RG_memorial_day_2015 05/25/2015  16:45 0.0000
-RG_memorial_day_2015 05/25/2015  16:50 0.0000
-RG_memorial_day_2015 05/25/2015  16:55 0.0000
-RG_memorial_day_2015 05/25/2015  17:00 0.0000
-RG_memorial_day_2015 05/25/2015  17:05 0.0000
-RG_memorial_day_2015 05/25/2015  17:10 0.0000
-RG_memorial_day_2015 05/25/2015  17:15 0.0000
-RG_memorial_day_2015 05/25/2015  17:20 0.0000
-RG_memorial_day_2015 05/25/2015  17:25 0.0000
-RG_memorial_day_2015 05/25/2015  17:30 0.0000
-RG_memorial_day_2015 05/25/2015  17:35 0.0000
-RG_memorial_day_2015 05/25/2015  17:40 0.0000
-RG_memorial_day_2015 05/25/2015  17:45 0.0000
-RG_memorial_day_2015 05/25/2015  17:50 0.0000
-RG_memorial_day_2015 05/25/2015  17:55 0.0000
-RG_memorial_day_2015 05/25/2015  18:00 0.0000
-RG_memorial_day_2015 05/25/2015  18:05 0.0000
-RG_memorial_day_2015 05/25/2015  18:10 0.0000
-RG_memorial_day_2015 05/25/2015  18:15 0.0000
-RG_memorial_day_2015 05/25/2015  18:20 0.0000
-RG_memorial_day_2015 05/25/2015  18:25 0.0000
-RG_memorial_day_2015 05/25/2015  18:30 0.0000
-RG_memorial_day_2015 05/25/2015  18:35 0.0000
-RG_memorial_day_2015 05/25/2015  18:40 0.0000
-RG_memorial_day_2015 05/25/2015  18:45 0.0000
-RG_memorial_day_2015 05/25/2015  18:50 0.0000
-RG_memorial_day_2015 05/25/2015  18:55 0.0000
-RG_memorial_day_2015 05/25/2015  19:00 0.0000
-RG_memorial_day_2015 05/25/2015  19:05 0.0000
-RG_memorial_day_2015 05/25/2015  19:10 0.0000
-RG_memorial_day_2015 05/25/2015  19:15 0.0000
-RG_memorial_day_2015 05/25/2015  19:20 0.0000
-RG_memorial_day_2015 05/25/2015  19:25 0.0000
-RG_memorial_day_2015 05/25/2015  19:30 0.0000
-RG_memorial_day_2015 05/25/2015  19:35 0.0000
-RG_memorial_day_2015 05/25/2015  19:40 0.0000
-RG_memorial_day_2015 05/25/2015  19:45 0.0000
-RG_memorial_day_2015 05/25/2015  19:50 0.0000
-RG_memorial_day_2015 05/25/2015  19:55 0.0000
-RG_memorial_day_2015 05/25/2015  20:00 0.0000
-RG_memorial_day_2015 05/25/2015  20:05 0.0000
-RG_memorial_day_2015 05/25/2015  20:10 0.0000
-RG_memorial_day_2015 05/25/2015  20:15 0.0000
-RG_memorial_day_2015 05/25/2015  20:20 0.0000
-RG_memorial_day_2015 05/25/2015  20:25 0.0000
-RG_memorial_day_2015 05/25/2015  20:30 0.0000
-RG_memorial_day_2015 05/25/2015  20:35 0.0000
-RG_memorial_day_2015 05/25/2015  20:40 0.0000
-RG_memorial_day_2015 05/25/2015  20:45 0.0000
-RG_memorial_day_2015 05/25/2015  20:50 0.0000
-RG_memorial_day_2015 05/25/2015  20:55 0.0000
-RG_memorial_day_2015 05/25/2015  21:00 0.0000
-RG_memorial_day_2015 05/25/2015  21:05 0.0000
-RG_memorial_day_2015 05/25/2015  21:10 0.0000
-RG_memorial_day_2015 05/25/2015  21:15 0.0000
-RG_memorial_day_2015 05/25/2015  21:20 0.0000
-RG_memorial_day_2015 05/25/2015  21:25 0.0000
-RG_memorial_day_2015 05/25/2015  21:30 0.0000
-RG_memorial_day_2015 05/25/2015  21:35 0.0000
-RG_memorial_day_2015 05/25/2015  21:40 0.0000
-RG_memorial_day_2015 05/25/2015  21:45 0.0000
-RG_memorial_day_2015 05/25/2015  21:50 0.0000
-RG_memorial_day_2015 05/25/2015  21:55 0.0000
-RG_memorial_day_2015 05/25/2015  22:00 0.0000
-RG_memorial_day_2015 05/25/2015  22:05 0.0000
-RG_memorial_day_2015 05/25/2015  22:10 0.0000
-RG_memorial_day_2015 05/25/2015  22:15 0.0000
-RG_memorial_day_2015 05/25/2015  22:20 0.0000
-RG_memorial_day_2015 05/25/2015  22:25 0.0000
-RG_memorial_day_2015 05/25/2015  22:30 0.0000
-RG_memorial_day_2015 05/25/2015  22:35 0.0000
-RG_memorial_day_2015 05/25/2015  22:40 0.0000
-RG_memorial_day_2015 05/25/2015  22:45 0.0000
-RG_memorial_day_2015 05/25/2015  22:50 0.0000
-RG_memorial_day_2015 05/25/2015  22:55 0.0000
-RG_memorial_day_2015 05/25/2015  23:00 0.0000
-RG_memorial_day_2015 05/25/2015  23:05 0.0000
-RG_memorial_day_2015 05/25/2015  23:10 0.0000
-RG_memorial_day_2015 05/25/2015  23:15 0.0000
-RG_memorial_day_2015 05/25/2015  23:20 0.0000
-RG_memorial_day_2015 05/25/2015  23:25 0.0000
-RG_memorial_day_2015 05/25/2015  23:30 0.0000
-RG_memorial_day_2015 05/25/2015  23:35 0.0000
-RG_memorial_day_2015 05/25/2015  23:40 0.0000
-RG_memorial_day_2015 05/25/2015  23:45 0.0000
-RG_memorial_day_2015 05/25/2015  23:50 0.0000
-RG_memorial_day_2015 05/25/2015  23:55 0.0000
-RG_memorial_day_2015 05/26/2015  00:00 0.0000
-RG_memorial_day_2015 05/26/2015  00:05 0.0000
-RG_memorial_day_2015 05/26/2015  00:10 0.0000
-RG_memorial_day_2015 05/26/2015  00:15 0.0000
-RG_memorial_day_2015 05/26/2015  00:20 0.0000
-RG_memorial_day_2015 05/26/2015  00:25 0.0000
-RG_memorial_day_2015 05/26/2015  00:30 0.0000
-RG_memorial_day_2015 05/26/2015  00:35 0.0000
-RG_memorial_day_2015 05/26/2015  00:40 0.0000
-RG_memorial_day_2015 05/26/2015  00:45 0.0000
-RG_memorial_day_2015 05/26/2015  00:50 0.0000
-RG_memorial_day_2015 05/26/2015  00:55 0.0000
-RG_memorial_day_2015 05/26/2015  01:00 0.0000
-RG_memorial_day_2015 05/26/2015  01:05 0.0000
-RG_memorial_day_2015 05/26/2015  01:10 0.0000
-RG_memorial_day_2015 05/26/2015  01:15 0.0000
-RG_memorial_day_2015 05/26/2015  01:20 0.0000
-RG_memorial_day_2015 05/26/2015  01:25 0.0000
-RG_memorial_day_2015 05/26/2015  01:30 0.0000
-RG_memorial_day_2015 05/26/2015  01:35 0.0000
-RG_memorial_day_2015 05/26/2015  01:40 0.0000
-RG_memorial_day_2015 05/26/2015  01:45 0.0000
-RG_memorial_day_2015 05/26/2015  01:50 0.0000
-RG_memorial_day_2015 05/26/2015  01:55 0.0000
-RG_memorial_day_2015 05/26/2015  02:00 0.0000
-RG_memorial_day_2015 05/26/2015  02:05 0.0000
-RG_memorial_day_2015 05/26/2015  02:10 0.0000
-RG_memorial_day_2015 05/26/2015  02:15 0.0000
-RG_memorial_day_2015 05/26/2015  02:20 0.0000
-RG_memorial_day_2015 05/26/2015  02:25 0.0000
-RG_memorial_day_2015 05/26/2015  02:30 0.0000
-RG_memorial_day_2015 05/26/2015  02:35 0.0000
-RG_memorial_day_2015 05/26/2015  02:40 0.0000
-RG_memorial_day_2015 05/26/2015  02:45 0.0000
-RG_memorial_day_2015 05/26/2015  02:50 0.0000
-RG_memorial_day_2015 05/26/2015  02:55 0.0000
-RG_memorial_day_2015 05/26/2015  03:00 0.0000
-RG_memorial_day_2015 05/26/2015  03:05 0.0000
-RG_memorial_day_2015 05/26/2015  03:10 0.0000
-RG_memorial_day_2015 05/26/2015  03:15 0.0000
-RG_memorial_day_2015 05/26/2015  03:20 0.0000
-RG_memorial_day_2015 05/26/2015  03:25 0.0000
-RG_memorial_day_2015 05/26/2015  03:30 0.0000
-RG_memorial_day_2015 05/26/2015  03:35 0.0000
-RG_memorial_day_2015 05/26/2015  03:40 0.0000
-RG_memorial_day_2015 05/26/2015  03:45 0.0000
-RG_memorial_day_2015 05/26/2015  03:50 0.0000
-RG_memorial_day_2015 05/26/2015  03:55 0.0000
-RG_memorial_day_2015 05/26/2015  04:00 0.0000
-RG_memorial_day_2015 05/26/2015  04:05 0.0000
-RG_memorial_day_2015 05/26/2015  04:10 0.0000
-RG_memorial_day_2015 05/26/2015  04:15 0.0000
-RG_memorial_day_2015 05/26/2015  04:20 0.0000
-RG_memorial_day_2015 05/26/2015  04:25 0.0000
-RG_memorial_day_2015 05/26/2015  04:30 0.0000
-RG_memorial_day_2015 05/26/2015  04:35 0.0000
-RG_memorial_day_2015 05/26/2015  04:40 0.0000
-RG_memorial_day_2015 05/26/2015  04:45 0.0000
-RG_memorial_day_2015 05/26/2015  04:50 0.0000
-RG_memorial_day_2015 05/26/2015  04:55 0.0000
-RG_memorial_day_2015 05/26/2015  05:00 0.0000
-RG_memorial_day_2015 05/26/2015  05:05 0.0000
-RG_memorial_day_2015 05/26/2015  05:10 0.0000
-RG_memorial_day_2015 05/26/2015  05:15 0.0000
-RG_memorial_day_2015 05/26/2015  05:20 0.0000
-RG_memorial_day_2015 05/26/2015  05:25 0.0000
-RG_memorial_day_2015 05/26/2015  05:30 0.0000
-RG_memorial_day_2015 05/26/2015  05:35 0.0000
-RG_memorial_day_2015 05/26/2015  05:40 0.0000
-RG_memorial_day_2015 05/26/2015  05:45 0.0000
-RG_memorial_day_2015 05/26/2015  05:50 0.0000
-RG_memorial_day_2015 05/26/2015  05:55 0.0000
-RG_memorial_day_2015 05/26/2015  06:00 0.0000
-RG_memorial_day_2015 05/26/2015  06:05 0.0000
-RG_memorial_day_2015 05/26/2015  06:10 0.0000
-RG_memorial_day_2015 05/26/2015  06:15 0.0000
-RG_memorial_day_2015 05/26/2015  06:20 0.0000
-RG_memorial_day_2015 05/26/2015  06:25 0.0000
-RG_memorial_day_2015 05/26/2015  06:30 0.0000
-RG_memorial_day_2015 05/26/2015  06:35 0.0000
-RG_memorial_day_2015 05/26/2015  06:40 0.0000
-RG_memorial_day_2015 05/26/2015  06:45 0.0000
-RG_memorial_day_2015 05/26/2015  06:50 0.0000
-RG_memorial_day_2015 05/26/2015  06:55 0.0000
-RG_memorial_day_2015 05/26/2015  07:00 0.0000
-RG_memorial_day_2015 05/26/2015  07:05 0.0000
-RG_memorial_day_2015 05/26/2015  07:10 0.0000
-RG_memorial_day_2015 05/26/2015  07:15 0.0000
-RG_memorial_day_2015 05/26/2015  07:20 0.0000
-RG_memorial_day_2015 05/26/2015  07:25 0.0000
-RG_memorial_day_2015 05/26/2015  07:30 0.0000
-RG_memorial_day_2015 05/26/2015  07:35 0.0000
-RG_memorial_day_2015 05/26/2015  07:40 0.0000
-RG_memorial_day_2015 05/26/2015  07:45 0.0000
-RG_memorial_day_2015 05/26/2015  07:50 0.0000
-RG_memorial_day_2015 05/26/2015  07:55 0.0000
-RG_memorial_day_2015 05/26/2015  08:00 0.0000
-RG_memorial_day_2015 05/26/2015  08:05 0.0000
-RG_memorial_day_2015 05/26/2015  08:10 0.0000
-RG_memorial_day_2015 05/26/2015  08:15 0.0000
-RG_memorial_day_2015 05/26/2015  08:20 0.0000
-RG_memorial_day_2015 05/26/2015  08:25 0.0000
-RG_memorial_day_2015 05/26/2015  08:30 0.0000
-RG_memorial_day_2015 05/26/2015  08:35 0.0000
-RG_memorial_day_2015 05/26/2015  08:40 0.0000
-RG_memorial_day_2015 05/26/2015  08:45 0.0000
-RG_memorial_day_2015 05/26/2015  08:50 0.0000
-RG_memorial_day_2015 05/26/2015  08:55 0.0000
-RG_memorial_day_2015 05/26/2015  09:00 0.0000
-RG_memorial_day_2015 05/26/2015  09:05 0.0000
-RG_memorial_day_2015 05/26/2015  09:10 0.0000
-RG_memorial_day_2015 05/26/2015  09:15 0.0000
-RG_memorial_day_2015 05/26/2015  09:20 0.0000
-RG_memorial_day_2015 05/26/2015  09:25 0.0000
-RG_memorial_day_2015 05/26/2015  09:30 0.0000
-RG_memorial_day_2015 05/26/2015  09:35 0.0000
-RG_memorial_day_2015 05/26/2015  09:40 0.0000
-RG_memorial_day_2015 05/26/2015  09:45 0.0000
-RG_memorial_day_2015 05/26/2015  09:50 0.0000
-RG_memorial_day_2015 05/26/2015  09:55 0.0000
-RG_memorial_day_2015 05/26/2015  10:00 0.0000
-RG_memorial_day_2015 05/26/2015  10:05 0.0000
-RG_memorial_day_2015 05/26/2015  10:10 0.0000
-RG_memorial_day_2015 05/26/2015  10:15 0.0000
-RG_memorial_day_2015 05/26/2015  10:20 0.0000
-RG_memorial_day_2015 05/26/2015  10:25 0.0000
-RG_memorial_day_2015 05/26/2015  10:30 0.0000
-RG_memorial_day_2015 05/26/2015  10:35 0.0000
-RG_memorial_day_2015 05/26/2015  10:40 0.0000
-RG_memorial_day_2015 05/26/2015  10:45 0.0000
-RG_memorial_day_2015 05/26/2015  10:50 0.0000
-RG_memorial_day_2015 05/26/2015  10:55 0.0000
-RG_memorial_day_2015 05/26/2015  11:00 0.0000
-RG_memorial_day_2015 05/26/2015  11:05 0.0000
-RG_memorial_day_2015 05/26/2015  11:10 0.0000
-RG_memorial_day_2015 05/26/2015  11:15 0.0000
-RG_memorial_day_2015 05/26/2015  11:20 0.0000
-RG_memorial_day_2015 05/26/2015  11:25 0.0000
-RG_memorial_day_2015 05/26/2015  11:30 0.0000
-RG_memorial_day_2015 05/26/2015  11:35 0.0000
-RG_memorial_day_2015 05/26/2015  11:40 0.0000
-RG_memorial_day_2015 05/26/2015  11:45 0.0000
-RG_memorial_day_2015 05/26/2015  11:50 0.0000
-RG_memorial_day_2015 05/26/2015  11:55 0.0000
-RG_memorial_day_2015 05/26/2015  12:00 0.0000
-RG_memorial_day_2015 05/26/2015  12:05 0.0000
-RG_memorial_day_2015 05/26/2015  12:10 0.0000
-RG_memorial_day_2015 05/26/2015  12:15 0.0000
-RG_memorial_day_2015 05/26/2015  12:20 0.0000
-RG_memorial_day_2015 05/26/2015  12:25 0.0000
-RG_memorial_day_2015 05/26/2015  12:30 0.0000
-RG_memorial_day_2015 05/26/2015  12:35 0.0000
-RG_memorial_day_2015 05/26/2015  12:40 0.0000
-RG_memorial_day_2015 05/26/2015  12:45 0.0000
-RG_memorial_day_2015 05/26/2015  12:50 0.0000
-RG_memorial_day_2015 05/26/2015  12:55 0.0000
-RG_memorial_day_2015 05/26/2015  13:00 0.0000
-RG_memorial_day_2015 05/26/2015  13:05 0.0000
-RG_memorial_day_2015 05/26/2015  13:10 0.0000
-RG_memorial_day_2015 05/26/2015  13:15 0.0000
-RG_memorial_day_2015 05/26/2015  13:20 0.0000
-RG_memorial_day_2015 05/26/2015  13:25 0.0000
-RG_memorial_day_2015 05/26/2015  13:30 0.0000
-RG_memorial_day_2015 05/26/2015  13:35 0.0000
-RG_memorial_day_2015 05/26/2015  13:40 0.0000
-RG_memorial_day_2015 05/26/2015  13:45 0.0000
-RG_memorial_day_2015 05/26/2015  13:50 0.0000
-RG_memorial_day_2015 05/26/2015  13:55 0.0000
-RG_memorial_day_2015 05/26/2015  14:00 0.0000
-RG_memorial_day_2015 05/26/2015  14:05 0.0000
-RG_memorial_day_2015 05/26/2015  14:10 0.0000
-RG_memorial_day_2015 05/26/2015  14:15 0.0000
-RG_memorial_day_2015 05/26/2015  14:20 0.0000
-RG_memorial_day_2015 05/26/2015  14:25 0.0000
-RG_memorial_day_2015 05/26/2015  14:30 0.0000
-RG_memorial_day_2015 05/26/2015  14:35 0.0000
-RG_memorial_day_2015 05/26/2015  14:40 0.0000
-RG_memorial_day_2015 05/26/2015  14:45 0.0000
-RG_memorial_day_2015 05/26/2015  14:50 0.0000
-RG_memorial_day_2015 05/26/2015  14:55 0.0000
-RG_memorial_day_2015 05/26/2015  15:00 0.0000
-RG_memorial_day_2015 05/26/2015  15:05 0.0000
-RG_memorial_day_2015 05/26/2015  15:10 0.0000
-RG_memorial_day_2015 05/26/2015  15:15 0.0000
-RG_memorial_day_2015 05/26/2015  15:20 0.0000
-RG_memorial_day_2015 05/26/2015  15:25 0.0000
-RG_memorial_day_2015 05/26/2015  15:30 0.0000
-RG_memorial_day_2015 05/26/2015  15:35 0.0000
-RG_memorial_day_2015 05/26/2015  15:40 0.0000
-RG_memorial_day_2015 05/26/2015  15:45 0.0000
-RG_memorial_day_2015 05/26/2015  15:50 0.0000
-RG_memorial_day_2015 05/26/2015  15:55 0.0000
-RG_memorial_day_2015 05/26/2015  16:00 0.0000
-RG_memorial_day_2015 05/26/2015  16:05 0.0000
-RG_memorial_day_2015 05/26/2015  16:10 0.0000
-RG_memorial_day_2015 05/26/2015  16:15 0.0000
-RG_memorial_day_2015 05/26/2015  16:20 0.0000
-RG_memorial_day_2015 05/26/2015  16:25 0.0000
-RG_memorial_day_2015 05/26/2015  16:30 0.0000
-RG_memorial_day_2015 05/26/2015  16:35 0.0000
-RG_memorial_day_2015 05/26/2015  16:40 0.0000
-RG_memorial_day_2015 05/26/2015  16:45 0.0000
-RG_memorial_day_2015 05/26/2015  16:50 0.0000
-RG_memorial_day_2015 05/26/2015  16:55 0.0000
-RG_memorial_day_2015 05/26/2015  17:00 0.0000
-RG_memorial_day_2015 05/26/2015  17:05 0.0000
-RG_memorial_day_2015 05/26/2015  17:10 0.0000
-RG_memorial_day_2015 05/26/2015  17:15 0.0000
-RG_memorial_day_2015 05/26/2015  17:20 0.0000
-RG_memorial_day_2015 05/26/2015  17:25 0.0000
-RG_memorial_day_2015 05/26/2015  17:30 0.0000
-RG_memorial_day_2015 05/26/2015  17:35 0.0000
-RG_memorial_day_2015 05/26/2015  17:40 0.0000
-RG_memorial_day_2015 05/26/2015  17:45 0.0000
-RG_memorial_day_2015 05/26/2015  17:50 0.0000
-RG_memorial_day_2015 05/26/2015  17:55 0.0000
-RG_memorial_day_2015 05/26/2015  18:00 0.0000
-RG_memorial_day_2015 05/26/2015  18:05 0.0000
-RG_memorial_day_2015 05/26/2015  18:10 0.0000
-RG_memorial_day_2015 05/26/2015  18:15 0.0000
-RG_memorial_day_2015 05/26/2015  18:20 0.0000
-RG_memorial_day_2015 05/26/2015  18:25 0.0000
-RG_memorial_day_2015 05/26/2015  18:30 0.0000
-RG_memorial_day_2015 05/26/2015  18:35 0.0000
-RG_memorial_day_2015 05/26/2015  18:40 0.0000
-RG_memorial_day_2015 05/26/2015  18:45 0.0000
-RG_memorial_day_2015 05/26/2015  18:50 0.0000
-RG_memorial_day_2015 05/26/2015  18:55 0.0000
-RG_memorial_day_2015 05/26/2015  19:00 0.0000
-RG_memorial_day_2015 05/26/2015  19:05 0.0000
-RG_memorial_day_2015 05/26/2015  19:10 0.0000
-RG_memorial_day_2015 05/26/2015  19:15 0.0000
-RG_memorial_day_2015 05/26/2015  19:20 0.0000
-RG_memorial_day_2015 05/26/2015  19:25 0.0000
-RG_memorial_day_2015 05/26/2015  19:30 0.0000
-RG_memorial_day_2015 05/26/2015  19:35 0.0000
-RG_memorial_day_2015 05/26/2015  19:40 0.0000
-RG_memorial_day_2015 05/26/2015  19:45 0.0000
-RG_memorial_day_2015 05/26/2015  19:50 0.0000
-RG_memorial_day_2015 05/26/2015  19:55 0.0000
-RG_memorial_day_2015 05/26/2015  20:00 0.0000
-RG_memorial_day_2015 05/26/2015  20:05 0.0000
-RG_memorial_day_2015 05/26/2015  20:10 0.0000
-RG_memorial_day_2015 05/26/2015  20:15 0.0000
-RG_memorial_day_2015 05/26/2015  20:20 0.0000
-RG_memorial_day_2015 05/26/2015  20:25 0.0000
-RG_memorial_day_2015 05/26/2015  20:30 0.0000
-RG_memorial_day_2015 05/26/2015  20:35 0.0000
-RG_memorial_day_2015 05/26/2015  20:40 0.0000
-RG_memorial_day_2015 05/26/2015  20:45 0.0000
-RG_memorial_day_2015 05/26/2015  20:50 0.0000
-RG_memorial_day_2015 05/26/2015  20:55 0.0000
-RG_memorial_day_2015 05/26/2015  21:00 0.0000
-RG_memorial_day_2015 05/26/2015  21:05 0.0000
-RG_memorial_day_2015 05/26/2015  21:10 0.0000
-RG_memorial_day_2015 05/26/2015  21:15 0.0000
-RG_memorial_day_2015 05/26/2015  21:20 0.0000
-RG_memorial_day_2015 05/26/2015  21:25 0.0000
-RG_memorial_day_2015 05/26/2015  21:30 0.0000
-RG_memorial_day_2015 05/26/2015  21:35 0.0000
-RG_memorial_day_2015 05/26/2015  21:40 0.0000
-RG_memorial_day_2015 05/26/2015  21:45 0.0000
-RG_memorial_day_2015 05/26/2015  21:50 0.0000
-RG_memorial_day_2015 05/26/2015  21:55 0.0000
-RG_memorial_day_2015 05/26/2015  22:00 0.0000
-RG_memorial_day_2015 05/26/2015  22:05 0.0000
-RG_memorial_day_2015 05/26/2015  22:10 0.0000
-RG_memorial_day_2015 05/26/2015  22:15 0.0000
-RG_memorial_day_2015 05/26/2015  22:20 0.0000
-RG_memorial_day_2015 05/26/2015  22:25 0.0000
-RG_memorial_day_2015 05/26/2015  22:30 0.0000
-RG_memorial_day_2015 05/26/2015  22:35 0.0000
-RG_memorial_day_2015 05/26/2015  22:40 0.0000
-RG_memorial_day_2015 05/26/2015  22:45 0.0000
-RG_memorial_day_2015 05/26/2015  22:50 0.0000
-RG_memorial_day_2015 05/26/2015  22:55 0.0000
-RG_memorial_day_2015 05/26/2015  23:00 0.0000
-RG_memorial_day_2015 05/26/2015  23:05 0.0000
-RG_memorial_day_2015 05/26/2015  23:10 0.0000
-RG_memorial_day_2015 05/26/2015  23:15 0.0000
-RG_memorial_day_2015 05/26/2015  23:20 0.0000
-RG_memorial_day_2015 05/26/2015  23:25 0.0000
-RG_memorial_day_2015 05/26/2015  23:30 0.0000
-RG_memorial_day_2015 05/26/2015  23:35 0.0000
-RG_memorial_day_2015 05/26/2015  23:40 0.0000
-RG_memorial_day_2015 05/26/2015  23:45 0.0000
-RG_memorial_day_2015 05/26/2015  23:50 0.0000
-RG_memorial_day_2015 05/26/2015  23:55 0.0000
+;; QPE source: IEM ASOS ATT (96 obs)  storm: memorial_day_2015
+;; Total precip: 5.83 in  peak: 2.30 in/hr at 05/25 21:51Z
+RG_memorial_day_2015 05/24/2015  00:51 0.1100
+RG_memorial_day_2015 05/24/2015  01:51 0.0700
+RG_memorial_day_2015 05/24/2015  02:51 0.3700
+RG_memorial_day_2015 05/24/2015  03:51 0.0000
+RG_memorial_day_2015 05/24/2015  04:51 0.0000
+RG_memorial_day_2015 05/24/2015  05:51 0.0000
+RG_memorial_day_2015 05/24/2015  06:51 0.0000
+RG_memorial_day_2015 05/24/2015  07:51 0.0000
+RG_memorial_day_2015 05/24/2015  08:51 0.0000
+RG_memorial_day_2015 05/24/2015  09:51 0.0200
+RG_memorial_day_2015 05/24/2015  10:51 0.0500
+RG_memorial_day_2015 05/24/2015  11:51 0.0010
+RG_memorial_day_2015 05/24/2015  12:51 0.0000
+RG_memorial_day_2015 05/24/2015  13:51 0.0000
+RG_memorial_day_2015 05/24/2015  14:51 0.0000
+RG_memorial_day_2015 05/24/2015  15:51 0.0000
+RG_memorial_day_2015 05/24/2015  16:51 0.0000
+RG_memorial_day_2015 05/24/2015  17:51 0.0000
+RG_memorial_day_2015 05/24/2015  18:51 0.0000
+RG_memorial_day_2015 05/24/2015  19:51 0.0000
+RG_memorial_day_2015 05/24/2015  20:51 0.0000
+RG_memorial_day_2015 05/24/2015  21:51 0.0000
+RG_memorial_day_2015 05/24/2015  22:51 0.0000
+RG_memorial_day_2015 05/24/2015  23:51 0.0000
+RG_memorial_day_2015 05/25/2015  00:51 0.0000
+RG_memorial_day_2015 05/25/2015  01:51 0.0000
+RG_memorial_day_2015 05/25/2015  02:51 0.0000
+RG_memorial_day_2015 05/25/2015  03:51 0.0000
+RG_memorial_day_2015 05/25/2015  04:51 0.0000
+RG_memorial_day_2015 05/25/2015  05:51 0.0000
+RG_memorial_day_2015 05/25/2015  06:51 0.0000
+RG_memorial_day_2015 05/25/2015  07:51 0.0000
+RG_memorial_day_2015 05/25/2015  08:51 0.0000
+RG_memorial_day_2015 05/25/2015  09:51 0.0000
+RG_memorial_day_2015 05/25/2015  10:51 0.0000
+RG_memorial_day_2015 05/25/2015  11:51 0.0000
+RG_memorial_day_2015 05/25/2015  12:51 0.0000
+RG_memorial_day_2015 05/25/2015  13:51 0.0000
+RG_memorial_day_2015 05/25/2015  14:51 0.0000
+RG_memorial_day_2015 05/25/2015  15:51 0.0000
+RG_memorial_day_2015 05/25/2015  16:51 0.0000
+RG_memorial_day_2015 05/25/2015  17:51 0.0010
+RG_memorial_day_2015 05/25/2015  18:51 0.0010
+RG_memorial_day_2015 05/25/2015  19:51 0.8600
+RG_memorial_day_2015 05/25/2015  20:51 1.7000
+RG_memorial_day_2015 05/25/2015  21:51 2.3000
+RG_memorial_day_2015 05/25/2015  22:51 0.3400
+RG_memorial_day_2015 05/25/2015  23:51 0.0000
+RG_memorial_day_2015 05/26/2015  00:51 0.0000
+RG_memorial_day_2015 05/26/2015  01:51 0.0000
+RG_memorial_day_2015 05/26/2015  02:51 0.0000
+RG_memorial_day_2015 05/26/2015  03:51 0.0000
+RG_memorial_day_2015 05/26/2015  04:51 0.0000
+RG_memorial_day_2015 05/26/2015  05:51 0.0000
+RG_memorial_day_2015 05/26/2015  06:51 0.0000
+RG_memorial_day_2015 05/26/2015  07:51 0.0000
+RG_memorial_day_2015 05/26/2015  08:51 0.0000
+RG_memorial_day_2015 05/26/2015  09:51 0.0000
+RG_memorial_day_2015 05/26/2015  10:51 0.0000
+RG_memorial_day_2015 05/26/2015  11:51 0.0000
+RG_memorial_day_2015 05/26/2015  12:51 0.0000
+RG_memorial_day_2015 05/26/2015  13:51 0.0000
+RG_memorial_day_2015 05/26/2015  14:51 0.0000
+RG_memorial_day_2015 05/26/2015  15:51 0.0000
+RG_memorial_day_2015 05/26/2015  16:51 0.0000
+RG_memorial_day_2015 05/26/2015  17:51 0.0000
+RG_memorial_day_2015 05/26/2015  18:51 0.0000
+RG_memorial_day_2015 05/26/2015  19:51 0.0000
+RG_memorial_day_2015 05/26/2015  20:51 0.0000
+RG_memorial_day_2015 05/26/2015  21:51 0.0000
+RG_memorial_day_2015 05/26/2015  22:51 0.0000
+RG_memorial_day_2015 05/26/2015  23:51 0.0000
+RG_memorial_day_2015 05/27/2015  00:51 0.0000
+RG_memorial_day_2015 05/27/2015  01:51 0.0000
+RG_memorial_day_2015 05/27/2015  02:51 0.0000
+RG_memorial_day_2015 05/27/2015  03:51 0.0000
+RG_memorial_day_2015 05/27/2015  04:51 0.0000
+RG_memorial_day_2015 05/27/2015  05:51 0.0000
+RG_memorial_day_2015 05/27/2015  06:51 0.0000
+RG_memorial_day_2015 05/27/2015  07:51 0.0010
+RG_memorial_day_2015 05/27/2015  08:51 0.0010
+RG_memorial_day_2015 05/27/2015  09:51 0.0000
+RG_memorial_day_2015 05/27/2015  10:51 0.0010
+RG_memorial_day_2015 05/27/2015  11:51 0.0000
+RG_memorial_day_2015 05/27/2015  12:51 0.0000
+RG_memorial_day_2015 05/27/2015  13:51 0.0000
+RG_memorial_day_2015 05/27/2015  14:51 0.0000
+RG_memorial_day_2015 05/27/2015  15:51 0.0000
+RG_memorial_day_2015 05/27/2015  16:51 0.0010
+RG_memorial_day_2015 05/27/2015  17:51 0.0010
+RG_memorial_day_2015 05/27/2015  18:51 0.0000
+RG_memorial_day_2015 05/27/2015  19:51 0.0000
+RG_memorial_day_2015 05/27/2015  20:51 0.0000
+RG_memorial_day_2015 05/27/2015  21:51 0.0010
+RG_memorial_day_2015 05/27/2015  22:51 0.0010
+RG_memorial_day_2015 05/27/2015  23:51 0.0000
 
 [REPORT]
 INPUT      NO
@@ -3528,7 +3049,9 @@ Units      Degrees
 [COORDINATES]
 ;;Node           X-Coord            Y-Coord
 ;;-------------- ------------------ ------------------
-S_SHOAL          -97.7498470        30.2758388        
+J_HEAD           -97.7480000        30.3280000        
+J_MID            -97.7490000        30.3040000        
+J_LOWER          -97.7490000        30.2850000        
 1025299          -97.7454645        30.2741077        
 1025300          -97.7455129        30.2741039        
 1068083          -97.7505988        30.2717104        

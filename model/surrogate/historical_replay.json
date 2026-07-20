@@ -1,0 +1,40 @@
+{
+  "results": [
+    {
+      "storm": "Memorial Day 2015",
+      "rain_depth_mm": 148.1,
+      "storm_dur_hr": 9.0,
+      "api_5_mm": 30.0,
+      "surrogate_cfs": 7621,
+      "swmm_cfs": 7395,
+      "usgs_obs_cfs": 11600.0,
+      "surr_vs_usgs_pct": -34.3,
+      "surr_vs_swmm_pct": 3.1,
+      "notes": "Calibration event. QPE ceiling ~7,400 CFS."
+    },
+    {
+      "storm": "Halloween 2013",
+      "rain_depth_mm": 118.8,
+      "storm_dur_hr": 14.0,
+      "api_5_mm": 5.0,
+      "surrogate_cfs": 3510,
+      "swmm_cfs": null,
+      "usgs_obs_cfs": 10400.0,
+      "surr_vs_usgs_pct": -66.2,
+      "surr_vs_swmm_pct": null,
+      "notes": "Validation event. No SWMM run."
+    },
+    {
+      "storm": "Halloween 2015",
+      "rain_depth_mm": 149.8,
+      "storm_dur_hr": 13.0,
+      "api_5_mm": 30.0,
+      "surrogate_cfs": 7261,
+      "swmm_cfs": null,
+      "usgs_obs_cfs": 8590.0,
+      "surr_vs_usgs_pct": -15.5,
+      "surr_vs_swmm_pct": null,
+      "notes": "Validation event. No SWMM run."
+    }
+  ]
+}

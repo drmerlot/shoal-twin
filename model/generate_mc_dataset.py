@@ -300,6 +300,55 @@ def parse_args():
     return p.parse_args()
 
 
+def process_single_run(row_dict, inp_template, best_params):
+    import time
+    import numpy as np
+    
+    run_id = row_dict["run_id"]
+    rain_mm = row_dict["rain_depth_mm"]
+    dur_hr = row_dict["storm_dur_hr"]
+    api_mm = row_dict["api_5_mm"]
+    ts_name = f"RG_{run_id}"
+
+    rain_rows, rain_meta = build_triangular_rain_timeseries(
+        depth_mm=rain_mm,
+        dur_hr=dur_hr,
+        api_5_mm=api_mm,
+        base_ts_name=ts_name,
+    )
+    api_factor = rain_meta["api_factor"]
+
+    patched_inp = patch_inp_for_mc(
+        inp_text=inp_template,
+        best_params=best_params,
+        rain_rows=rain_rows,
+        ts_name=ts_name,
+        api_factor=api_factor,
+        sim_dur_hr=dur_hr,
+    )
+
+    t0 = time.time()
+    flows_5min, peak_cfs = run_swmm_mc(patched_inp)
+    elapsed = time.time() - t0
+
+    if peak_cfs == 0.0:
+        return None
+        
+    vol_acft = float(flows_5min.sum() * MC_REPORT_STEP_SEC / 43560)
+    ttp_hr   = float(np.argmax(flows_5min) * MC_REPORT_STEP_SEC / 3600)
+
+    meta_row = {
+        "run_id":        run_id,
+        "rain_depth_mm": rain_mm,
+        "storm_dur_hr":  dur_hr,
+        "api_5_mm":      api_mm,
+        "peak_cfs":      peak_cfs,
+        "vol_acft":      vol_acft,
+        "ttp_hr":        ttp_hr,
+        "n_steps":       MC_N_STEPS,
+    }
+    return run_id, flows_5min, meta_row, elapsed
+
 def main():
     args = parse_args()
     N = args.n_runs
@@ -347,64 +396,37 @@ def main():
     hydrograph_dict = {}
     t_start = time.time()
 
-    for i, row in inputs_df.iterrows():
-        run_id = row["run_id"]
-        rain_mm   = row["rain_depth_mm"]
-        dur_hr    = row["storm_dur_hr"]
-        api_mm    = row["api_5_mm"]
-        ts_name   = f"RG_{run_id}"
-
-        rain_rows, rain_meta = build_triangular_rain_timeseries(
-            depth_mm=rain_mm,
-            dur_hr=dur_hr,
-            api_5_mm=api_mm,
-            base_ts_name=ts_name,
-        )
-        api_factor = rain_meta["api_factor"]
-
-        patched_inp = patch_inp_for_mc(
-            inp_text=inp_template,
-            best_params=best_params,
-            rain_rows=rain_rows,
-            ts_name=ts_name,
-            api_factor=api_factor,
-            sim_dur_hr=dur_hr,
-        )
-
-        t0 = time.time()
-        flows_5min, peak_cfs = run_swmm_mc(patched_inp)
-        elapsed = time.time() - t0
-
-        if peak_cfs == 0.0:
-            log.warning("Run %s failed (zero peak)", run_id)
-            continue
-
-        # Metrics on the uniform 5-min grid
-        vol_acft = float(flows_5min.sum() * MC_REPORT_STEP_SEC / 43560)
-        ttp_hr   = float(np.argmax(flows_5min) * MC_REPORT_STEP_SEC / 3600)
-
-        hydrograph_dict[run_id] = flows_5min  # shape (1152,) always
-
-        meta_rows.append({
-            "run_id":        run_id,
-            "rain_depth_mm": rain_mm,
-            "storm_dur_hr":  dur_hr,
-            "api_5_mm":      api_mm,
-            "peak_cfs":      peak_cfs,
-            "vol_acft":      vol_acft,
-            "ttp_hr":        ttp_hr,
-            "n_steps":       MC_N_STEPS,
-        })
-
-        if (i + 1) % 25 == 0 or i == 0:
-            elapsed_total = time.time() - t_start
-            rate = elapsed_total / (i + 1)
-            remaining = (N - i - 1) * rate / 60
-            log.info(
-                "Run %4d/%d  rain=%.0fmm  dur=%.1fhr  peak=%.0fCFS  "
-                "t=%.0fs  ETA=%.0f min",
-                i + 1, N, rain_mm, dur_hr, peak_cfs, elapsed, remaining,
-            )
+    import concurrent.futures
+    import multiprocessing
+    
+    cores = min(multiprocessing.cpu_count(), 14)
+    tasks = [row.to_dict() for _, row in inputs_df.iterrows()]
+    
+    log.info("Starting ProcessPoolExecutor with %d workers", cores)
+    
+    with concurrent.futures.ProcessPoolExecutor(max_workers=cores) as executor:
+        futures = {executor.submit(process_single_run, t, inp_template, best_params): t for t in tasks}
+        
+        for i, future in enumerate(concurrent.futures.as_completed(futures)):
+            res = future.result()
+            if res is None:
+                log.warning("Run failed (zero peak)")
+                continue
+                
+            run_id, flows_5min, meta_row, elapsed = res
+            hydrograph_dict[run_id] = flows_5min
+            meta_rows.append(meta_row)
+            
+            if (i + 1) % 25 == 0 or i == 0:
+                elapsed_total = time.time() - t_start
+                rate = elapsed_total / (i + 1)
+                remaining = (N - i - 1) * rate / 60
+                log.info(
+                    "Completed %4d/%d  last: rain=%.0fmm dur=%.1fhr peak=%.0fCFS  "
+                    "t=%.0fs  ETA=%.0f min",
+                    i + 1, N, meta_row["rain_depth_mm"], meta_row["storm_dur_hr"], 
+                    meta_row["peak_cfs"], elapsed, remaining,
+                )
 
     # Save outputs
     if not hydrograph_dict:
