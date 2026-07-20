@@ -446,11 +446,19 @@ st.markdown("<hr class='divider'>", unsafe_allow_html=True)
 st.header("Part III: Interactive Live Forecast Demo")
 st.markdown("Use the sliders below to adjust the incoming storm forecast. The ML Surrogate updates instantly, while the SWMM model requires you to manually run the physics engine.")
 
-col1, col2 = st.columns(2)
+st.markdown("""
+<div style="background-color: #0f172a; padding: 1.5rem; border-radius: 0.5rem; border: 1px solid #1e3a5f; margin-bottom: 2rem;">
+""", unsafe_allow_html=True)
+
+col1, col2, col3 = st.columns([1, 1, 1])
 with col1:
     rain_in = st.slider("Rainfall (inches)", min_value=1.0, max_value=15.0, value=5.0, step=0.5)
 with col2:
     dur_hr = st.slider("Storm Duration (hours)", min_value=1.0, max_value=24.0, value=6.0, step=1.0)
+with col3:
+    st.info("The ML Surrogate takes these values and instantly updates the left-hand map.")
+
+st.markdown("</div>", unsafe_allow_html=True)
 
 # We fix the antecedent soil moisture for the demo
 api_mm = 35.0 
@@ -465,32 +473,6 @@ if "swmm_cfs" not in st.session_state:
     st.session_state.swmm_cfs = None
     st.session_state.swmm_time = None
     st.session_state.swmm_params = None
-
-if st.button("Run SWMM Physics Model"):
-    with st.spinner("Running SWMM (this takes ~35 seconds)..."):
-        from model.generate_mc_dataset import process_single_run
-        
-        with open(ROOT / "model" / "best_params.json") as f:
-            best_params = json.load(f)
-        
-        with open(ROOT / "model" / "shoal_creek_memorial_day_2015.inp") as f:
-            inp_template = f.read()
-
-        row_dict = {
-            "run_id": "live_demo",
-            "rain_depth_mm": rain_in * 25.4,
-            "storm_dur_hr": dur_hr,
-            "api_5_mm": api_mm
-        }
-        
-        res = process_single_run(row_dict, inp_template, best_params)
-        if res:
-            _, _, meta_row, elapsed = res
-            st.session_state.swmm_cfs = meta_row["peak_cfs"]
-            st.session_state.swmm_time = elapsed
-            st.session_state.swmm_params = (rain_in, dur_hr)
-        else:
-            st.error("SWMM run failed or produced 0 CFS.")
 
 map_c1, map_c2 = st.columns(2)
 with map_c1:
@@ -509,3 +491,35 @@ with map_c2:
     else:
         st.markdown("**SWMM Physics Engine**")
         st.info("Click 'Run SWMM Physics Model' to simulate the inundation for the current slider values.")
+
+    if st.button("Run SWMM Physics Model", use_container_width=True):
+        with st.spinner("Running SWMM (this takes ~35 seconds)..."):
+            from model.generate_mc_dataset import process_single_run
+            import concurrent.futures
+            
+            with open(ROOT / "model" / "best_params.json") as f:
+                best_params = json.load(f)
+            
+            with open(ROOT / "model" / "shoal_creek_memorial_day_2015.inp") as f:
+                inp_template = f.read()
+
+            row_dict = {
+                "run_id": "live_demo",
+                "rain_depth_mm": rain_in * 25.4,
+                "storm_dur_hr": dur_hr,
+                "api_5_mm": api_mm
+            }
+            
+            # Run in a separate process to avoid PySWMM DLL crashing the Streamlit process
+            with concurrent.futures.ProcessPoolExecutor(max_workers=1) as executor:
+                future = executor.submit(process_single_run, row_dict, inp_template, best_params)
+                res = future.result()
+                
+            if res:
+                _, _, meta_row, elapsed = res
+                st.session_state.swmm_cfs = meta_row["peak_cfs"]
+                st.session_state.swmm_time = elapsed
+                st.session_state.swmm_params = (rain_in, dur_hr)
+                st.rerun()
+            else:
+                st.error("SWMM run failed or produced 0 CFS.")
