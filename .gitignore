@@ -68,3 +68,7 @@ model/*.out
 model/*.rpt
 model/checkpoints/
 .venv/
+tunnel.log
+fix_dates.py
+test_nse.py
+patch.py

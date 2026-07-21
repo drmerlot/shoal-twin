@@ -90,9 +90,8 @@ Rather than waiting for a full 2D distributed hydrodynamic simulation (which cou
 
 The underlying SWMM model was calibrated against real historical events using data from the **USGS 08158600** gauge (Shoal Creek at W 12th St, Austin TX).
 
-- **Calibration Event**: Halloween 2013 
-- **Validation Event**: Memorial Day 2015 
-- **Validation Event**: Halloween 2015 
+- **Calibration Event**: July 2025 (MRMS QPE)
+- **Validation Event**: Halloween 2015
 
 The Monte Carlo dataset was then generated using Latin Hypercube Sampling (LHS) across three dimensions: Rainfall Depth (mm), Storm Duration (hr), and Antecedent Precipitation Index (API5).
 
