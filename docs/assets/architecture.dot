@@ -1,0 +1,73 @@
+digraph G {
+    fontname="Helvetica,Arial,sans-serif"
+    node [fontname="Helvetica,Arial,sans-serif", shape=box, style="rounded,filled", fillcolor="#f8fafc", color="#94a3b8", margin="0.2,0.1"]
+    edge [fontname="Helvetica,Arial,sans-serif", color="#64748b"]
+
+    subgraph cluster_inputs {
+        label = "Meteorological Forcing (3D Space)";
+        style=dashed;
+        color="#3b82f6";
+        Rain [label="Rainfall Depth (P)"];
+        Dur [label="Storm Duration (D)"];
+        API [label="Antecedent Moisture (API_5)"];
+    }
+
+    subgraph cluster_physics {
+        label = "Physics Simulator (Offline Phase)";
+        style=dashed;
+        color="#10b981";
+        LHS [label="Monte Carlo LHS\n(N=500 events)"];
+        SWMM [label="SWMM 5.2 1D\nRouting Engine", fillcolor="#d1fae5", color="#059669"];
+        HydroSet [label="Target Dataset:\nMulti-Node Hydrographs Y"];
+    }
+
+    subgraph cluster_ml {
+        label = "ML Surrogate Pipeline";
+        style=dashed;
+        color="#8b5cf6";
+        
+        subgraph cluster_full {
+            label="Full Hydrograph (Validation)";
+            color="#a78bfa";
+            PCA [label="PCA Decomposition\n(Find Basis V, Weights z)"];
+            XGB_Full [label="XGBoost (z = f(x))"];
+            Recon [label="Reconstruction\nY = zV^T + µ"];
+        }
+
+        subgraph cluster_peak {
+            label="Scalar Peak (Live Inference)";
+            color="#a78bfa";
+            Eng [label="Feature Engineering\n(Intensity, API factor)"];
+            XGB_Peak [label="XGBoost Peak Regressor", fillcolor="#ede9fe", color="#7c3aed"];
+            Q_Peak [label="Scalar Peak Flow (Q_peak)", shape=ellipse, fillcolor="#ddd6fe"];
+        }
+    }
+
+    subgraph cluster_spatial {
+        label = "Spatial Map Library";
+        style=dashed;
+        color="#f59e0b";
+        Lib [label="Precomputed 2D Geometries\n(Flow -> Width interpolation table)"];
+        Scale [label="Scaling Function\nIntersects Q_peak with Library"];
+        Map [label="Instant 2D Inundation Map", shape=ellipse, fillcolor="#fef3c7"];
+    }
+
+    Rain -> LHS
+    Dur -> LHS
+    API -> LHS
+    LHS -> SWMM
+    SWMM -> HydroSet [label="~35s per run"]
+    HydroSet -> PCA
+    PCA -> XGB_Full
+    XGB_Full -> Recon
+    
+    Rain -> Eng
+    Dur -> Eng
+    API -> Eng
+    Eng -> XGB_Peak
+    XGB_Peak -> Q_Peak [label="~0.006 ms"]
+    
+    Q_Peak -> Scale
+    Lib -> Scale
+    Scale -> Map
+}
