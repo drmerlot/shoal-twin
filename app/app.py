@@ -456,17 +456,15 @@ with col1:
 with col2:
     dur_hr = st.slider("Storm Duration (hours)", min_value=1.0, max_value=24.0, value=6.0, step=1.0)
 with col3:
-    st.info("The ML Surrogate takes these values and instantly updates the left-hand map.")
+    api_mm = st.slider("Antecedent Moisture (API5, mm)", min_value=0.0, max_value=100.0, value=35.0, step=5.0)
 
 st.markdown("</div>", unsafe_allow_html=True)
-
-# We fix the antecedent soil moisture for the demo
-api_mm = 35.0 
+st.info("The ML Surrogate takes these values and instantly updates the left-hand map.")
 
 # Predict Surrogate instantly
 import time
 t0_surr = time.time()
-cfs_surr, _ = predict(model, rain_in * 25.4, dur_hr, api_mm * 0.75)
+cfs_surr, _ = predict(model, rain_in * 25.4, dur_hr, api_mm)
 t_surr = time.time() - t0_surr
 
 if "swmm_cfs" not in st.session_state:
@@ -483,7 +481,7 @@ with map_c2:
     if st.session_state.swmm_cfs is not None:
         swmm_val = st.session_state.swmm_cfs
         swmm_t = st.session_state.swmm_time
-        matched = (st.session_state.swmm_params == (rain_in, dur_hr))
+        matched = (st.session_state.swmm_params == (rain_in, dur_hr, api_mm))
         
         status = "✅ Synced" if matched else "⚠️ Out of Date"
         st.markdown(f"**{swmm_t:.1f} s SWMM Physics Engine** (Peak: {swmm_val:,.0f} CFS) - {status}")
@@ -523,7 +521,7 @@ with map_c2:
                 if res and res.get("success"):
                     st.session_state.swmm_cfs = res["peak_cfs"]
                     st.session_state.swmm_time = res["elapsed"]
-                    st.session_state.swmm_params = (rain_in, dur_hr)
+                    st.session_state.swmm_params = (rain_in, dur_hr, api_mm)
                     st.rerun()
                 else:
                     st.error("SWMM run failed or produced 0 CFS.")
