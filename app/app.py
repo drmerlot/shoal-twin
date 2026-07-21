@@ -198,7 +198,7 @@ def make_validation_bar(historical):
 def make_pydeck_map(channels, predicted_cfs):
     """Creates a PyDeck map with channel thickness scaling to CFS"""
     physical_width_scale = max(2.0, (predicted_cfs / 500) * 3.0)
-    c_rgb = [239, 68, 68] if predicted_cfs > 4000 else [249, 115, 22] if predicted_cfs > 2200 else [234, 179, 8]
+    c_rgb = [239, 68, 68] if predicted_cfs > 4000 else [249, 115, 22] if predicted_cfs > 2200 else [59, 130, 246]
     
     view_state = pdk.ViewState(
         latitude=30.30, longitude=-97.745, zoom=12.2, pitch=45, bearing=0
@@ -434,6 +434,23 @@ with c_center:
         st.markdown("**35.0 s SWMM Physics Engine**")
         st.pydeck_chart(make_pydeck_map(gis_channels, cfs_swmm), use_container_width=True)
 
+    st.markdown('''
+    <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.85rem; color: #94a3b8;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div style="width: 12px; height: 12px; background-color: #ef4444; border-radius: 50%;"></div>
+            <span>Major Flood (&gt; 4,000 CFS)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div style="width: 12px; height: 12px; background-color: #f97316; border-radius: 50%;"></div>
+            <span>Moderate Flood (&gt; 2,200 CFS)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div style="width: 12px; height: 12px; background-color: #3b82f6; border-radius: 50%;"></div>
+            <span>Normal/Base Flow (&le; 2,200 CFS)</span>
+        </div>
+    </div>
+    ''', unsafe_allow_html=True)
+
     st.markdown("""
     <div style="font-size:0.85rem; color:#64748b; margin-top: 2rem; border-top: 1px solid #1e3a5f; padding-top: 1rem; margin-bottom: 3rem;">
     <strong>Conclusion:</strong> The surrogate-driven framework successfully emulates high-fidelity 1D/2D hydrodynamics with negligible performance loss. The order-of-magnitude computational speedup opens the door to live, cloud-native ensemble forecasting systems that will replace this static proof-of-concept in the next phase of development.
@@ -489,6 +506,23 @@ with map_c2:
     else:
         st.markdown("**SWMM Physics Engine**")
         st.info("Click 'Run SWMM Physics Model' to simulate the inundation for the current slider values.")
+
+    st.markdown('''
+    <div style="display: flex; justify-content: center; gap: 2rem; margin-top: 0.5rem; margin-bottom: 1.5rem; font-size: 0.85rem; color: #94a3b8;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div style="width: 12px; height: 12px; background-color: #ef4444; border-radius: 50%;"></div>
+            <span>Major Flood (&gt; 4,000 CFS)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div style="width: 12px; height: 12px; background-color: #f97316; border-radius: 50%;"></div>
+            <span>Moderate Flood (&gt; 2,200 CFS)</span>
+        </div>
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <div style="width: 12px; height: 12px; background-color: #3b82f6; border-radius: 50%;"></div>
+            <span>Normal/Base Flow (&le; 2,200 CFS)</span>
+        </div>
+    </div>
+    ''', unsafe_allow_html=True)
 
     if st.button("Run SWMM Physics Model", use_container_width=True):
         with st.spinner("Running SWMM (this takes ~35 seconds)..."):
