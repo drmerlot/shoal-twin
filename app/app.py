@@ -197,7 +197,7 @@ def make_validation_bar(historical):
 
 def make_pydeck_map(channels, predicted_cfs):
     """Creates a PyDeck map with channel thickness scaling to CFS"""
-    w_scale = max(2, min((predicted_cfs / 4000) * 15, 30))
+    physical_width_scale = max(2.0, (predicted_cfs / 500) * 3.0)
     c_rgb = [239, 68, 68] if predicted_cfs > 4000 else [249, 115, 22] if predicted_cfs > 2200 else [234, 179, 8]
     
     view_state = pdk.ViewState(
@@ -209,8 +209,8 @@ def make_pydeck_map(channels, predicted_cfs):
         data=channels,
         pickable=True,
         get_color=c_rgb,
-        width_scale=20,
-        width_min_pixels=w_scale,
+        width_scale=physical_width_scale,
+        width_min_pixels=2,
         get_path="coordinates",
         get_width=5,
     )
