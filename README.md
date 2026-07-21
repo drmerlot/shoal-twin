@@ -1,6 +1,6 @@
 # Shoal Creek Flood Digital Twin
 
-**A blazing-fast, machine learning surrogate for real-time urban flood forecasting.**
+**A fast, machine learning surrogate for real-time urban flood forecasting.**
 
 ![Shoal Creek Dashboard Mockup](docs/assets/dashboard_screenshot.jpg)
 
@@ -8,13 +8,13 @@ This project demonstrates a production-grade workflow for building **Machine Lea
 
 ---
 
-## 🌊 The Problem: Physics Models are Too Slow for Live Forecasting
+## The Problem: Physics Models are Too Slow for Live Forecasting
 
 Urban flood forecasting traditionally relies on 1D/2D hydrodynamic models like SWMM, HEC-RAS, or XPSWMM. While highly accurate, these models are computationally expensive. 
 
 For the Shoal Creek watershed in Austin, TX, a single 1D SWMM run takes ~35 seconds. When live weather forecasts change every 5 minutes during a severe thunderstorm, running multi-scenario ensembles through a physics model is mathematically impossible without a supercomputer.
 
-## ⚡ The Solution: ML Surrogate Digital Twin
+## The Solution: ML Surrogate Digital Twin
 
 We built a 0D Lumped ML Surrogate that predicts the scalar peak flow at the watershed outlet, which is then used to instantly scale the geometric inundation boundaries across the entire watershed via a pre-rendered **Map Library** approach.
 
@@ -28,7 +28,7 @@ We built a 0D Lumped ML Surrogate that predicts the scalar peak flow at the wate
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```mermaid
 graph TD
@@ -78,7 +78,7 @@ graph TD
     E -->|~35.0 s| J
 ```
 
-## 🗺️ Spatial Inundation "Map Library" Approach
+## Spatial Inundation "Map Library" Approach
 
 Rather than waiting for a full 2D distributed hydrodynamic simulation (which could take hours), this project uses a computationally inexpensive **Map Library** lookup approach. 
 
@@ -86,7 +86,7 @@ Rather than waiting for a full 2D distributed hydrodynamic simulation (which cou
 2. **0D Surrogate Prediction**: In real-time, the ML Surrogate predicts the scalar peak flow at the watershed outlet.
 3. **Lookup & Interpolation**: The peak flow is used as an index to lookup and instantly scale the corresponding 2D inundation geometry across the entire channel network.
 
-## 📊 Model Calibration
+## Model Calibration
 
 The underlying SWMM model was calibrated against real historical events using data from the **USGS 08158600** gauge (Shoal Creek at W 12th St, Austin TX).
 
@@ -98,7 +98,7 @@ The Monte Carlo dataset was then generated using Latin Hypercube Sampling (LHS) 
 
 ---
 
-## 💻 Installation & Usage
+## Installation & Usage
 
 1. **Install dependencies using `uv`**:
    ```bash
@@ -116,7 +116,7 @@ The Monte Carlo dataset was then generated using Latin Hypercube Sampling (LHS) 
    - The ML Surrogate (left map) will update **instantly**.
    - Click the **Run SWMM Physics Model** button below the right map to spawn a background subprocess and watch the physics engine compute the exact same scenario over ~35 seconds.
 
-## 📂 Project Structure
+## Project Structure
 
 ```text
 shoal-twin/
