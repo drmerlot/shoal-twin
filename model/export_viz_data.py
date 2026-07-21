@@ -22,7 +22,6 @@ with open(ROOT / "model" / "best_params.json") as f:
 storms = ["memorial_day_2015", "halloween_2013", "halloween_2015", "july_2025"]
 hist_hydrographs = {}
 
-"""
 print("Running SWMM for historic events...")
 for s in storms:
     try:
@@ -42,7 +41,6 @@ for s in storms:
 
 with open(PROCESSED_DIR / "hist_hydrographs.json", "w") as f:
     json.dump(hist_hydrographs, f)
-"""
 
 # 2. Generate Surrogate Scatter Data
 print("Generating train/test scatter data...")

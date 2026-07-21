@@ -1,9 +1,19 @@
 {
-    "pct_imp": 89.0,
-    "width": 37402.0,
-    "ksat": 0.011,
-    "imd": 0.16,
-    "pct_zero": 29.0,
-    "n_ch": 0.0669,
-    "lower_frac": 0.16
+  "pct_imp": 89.0,
+  "width": 37402.0,
+  "ksat": 0.011,
+  "imd": 0.16,
+  "pct_zero": 29.0,
+  "n_ch": 0.0669,
+  "lower_frac": 0.16,
+  "nse_calibration": 0.6410252933562208,
+  "peak_sim_calib": 4607.61783702168,
+  "peak_obs_calib": 9340.0,
+  "peak_ratio_calib": 0.49332096756120775,
+  "ttp_err_hr_calib": 0.08333333333333333,
+  "storm_calibration": "july_2025",
+  "nse_validation": 0.5511870871039842,
+  "peak_ratio_valid": 1.3314435241863392,
+  "ttp_err_hr_valid": 0.5833333333333334,
+  "storm_validation": "halloween_2015"
 }
