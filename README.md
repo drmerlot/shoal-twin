@@ -4,7 +4,7 @@
 
 ![Shoal Creek Dashboard Mockup](docs/assets/dashboard_screenshot.jpg)
 
-This project demonstrates a production-grade workflow for building **Machine Learning (ML) Surrogate Models** of complex physics-based hydrodynamic simulations (SWMM 5.2). By training an XGBoost surrogate on a Monte Carlo dataset of SWMM runs, we achieved a model that predicts hydrographs and spatial inundation boundaries **~5,800x faster** than the physics engine, with a validation NSE of 0.98.
+This project demonstrates a workflow for building **machine learning (ML) surrogate models** of a physics-based hydrodynamic simulation (EPA SWMM 5.2, run through pyswmm). XGBoost surrogates trained on a 500-run Latin hypercube ensemble of SWMM reproduce its outlet response on 100 held-out runs (peak flow R² 0.995; full hydrograph mean NSE 0.90) in well under a millisecond per prediction, against about 35 seconds per SWMM run. The surrogates emulate SWMM; how well SWMM itself matches the observed gauge is reported separately below.
 
 ---
 
@@ -18,13 +18,15 @@ For the Shoal Creek watershed in Austin, TX, a single 1D SWMM run takes ~35 seco
 
 We built a 0D Lumped ML Surrogate that predicts the scalar peak flow at the watershed outlet, which is then used to instantly scale the geometric inundation boundaries across the entire watershed via a pre-rendered **Map Library** approach.
 
-### Performance Benchmark (Synthetic Test Event #124)
+### Performance (from `model/surrogate/meta.json`, 400 training and 100 held-out SWMM runs)
 
-| Metric | SWMM Physics Engine | ML Surrogate Digital Twin |
-|--------|---------------------|---------------------------|
-| **Execution Time** | 35.0 seconds | **0.006 milliseconds** |
-| **Speedup** | 1x | **~5,833,000x** |
-| **Peak Flow Prediction** | 3,365 CFS | 3,362 CFS (0.07% error) |
+| Surrogate | Accuracy against SWMM on held-out runs | Time per prediction |
+|-----------|----------------------------------------|---------------------|
+| Peak flow (XGBoost) | R² 0.995 (5-fold CV 0.993 ± 0.008); mean absolute error 106 cfs (2.5%) | about 0.005 ms (batch average) |
+| Full hydrograph (PCA + XGBoost) | Mean NSE 0.90; peak error 11.6%; time-to-peak error 20 min; volume error 9.5% | about 0.06 ms |
+| SWMM 5.2 (dynamic wave) | — | about 35 s per run |
+
+Timings are averages over batched predictions on a laptop, so the speedup is per prediction, not end to end. The flood map uses a pre-computed map library indexed by the predicted peak flow.
 
 ---
 
@@ -90,8 +92,10 @@ Rather than waiting for a full 2D distributed hydrodynamic simulation (which cou
 
 The underlying SWMM model was calibrated against real historical events using data from the **USGS 08158600** gauge (Shoal Creek at W 12th St, Austin TX).
 
-- **Calibration Event**: July 2025 (MRMS QPE)
-- **Validation Event**: Halloween 2015
+- **Calibration Event**: July 2025 (MRMS QPE): NSE 0.64, but the simulated peak is about half the observed peak (ratio 0.49)
+- **Validation Event**: Halloween 2015: NSE 0.55; simulated peak 1.33 times observed
+
+These come from `model/best_params.json` (differential evolution over 7 parameters). Rainfall input resolution limits the fit. Replaying three historical storms through the surrogate (`model/surrogate/historical_replay.json`) underpredicts the gauge's peaks by 15 to 66%, so the surrogate is only as good as the SWMM model and rainfall behind it: a demonstration of the surrogate workflow, not an operational forecast.
 
 The Monte Carlo dataset was then generated using Latin Hypercube Sampling (LHS) across three dimensions: Rainfall Depth (mm), Storm Duration (hr), and Antecedent Precipitation Index (API5).
 
